@@ -69,7 +69,7 @@ const SignUpSelection = () => {
 
       <p
         className="mt-6 text-gray-500 cursor-pointer hover:text-gray-700 transition-all duration-300"
-        onClick={() => navigate("/signin")}
+        onClick={() => navigate("/")}
       >
         Already have an account? <span className="font-semibold">Sign In</span>
       </p>
