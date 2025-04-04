@@ -15,8 +15,11 @@ function App() {
         <Route path="/signup-selection" element={<SignUpSelection />} />
         <Route path="/signup/user" element={<CustomerSignup />} />
         <Route path="/signup/vendor" element={<VendorSignup />} />{" "}
-        <Route path="/ab
-        out" element={<AboutUs />} />
+        <Route
+          path="/ab
+        out"
+          element={<AboutUs />}
+        />
       </Routes>
     </div>
   );
