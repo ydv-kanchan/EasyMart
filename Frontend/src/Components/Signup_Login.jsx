@@ -24,11 +24,15 @@ const SignUp_Login = () => {
     setError("");
 
     try {
-      const response = await fetch(`http://localhost:3000/api/login/${userType}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `http://localhost:3000/api/login/${userType}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await response.json();
 
@@ -36,9 +40,6 @@ const SignUp_Login = () => {
         setError(data.message);
         return;
       }
-
-      localStorage.setItem("token", data.token);
-
       navigate("/home");
     } catch (error) {
       setError("Something went wrong. Please try again.");
@@ -89,7 +90,9 @@ const SignUp_Login = () => {
                   onChange={() => setUserType("customer")}
                   className="accent-blue-500"
                 />
-                <label htmlFor="customer" className="text-gray-700">Customer</label>
+                <label htmlFor="customer" className="text-gray-700">
+                  Customer
+                </label>
               </div>
               <div className="flex items-center gap-2">
                 <input
@@ -101,7 +104,9 @@ const SignUp_Login = () => {
                   onChange={() => setUserType("seller")}
                   className="accent-blue-500"
                 />
-                <label htmlFor="seller" className="text-gray-700">Seller</label>
+                <label htmlFor="seller" className="text-gray-700">
+                  Seller
+                </label>
               </div>
             </div>
             <p className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4">

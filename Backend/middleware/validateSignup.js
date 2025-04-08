@@ -1,7 +1,6 @@
 const { body, validationResult } = require("express-validator");
 
 const commonValidations = [
-  body("fullName").notEmpty().withMessage("Full name is required"),
   body("username").notEmpty().withMessage("Username is required"),
   body("email").isEmail().withMessage("Invalid email format"),
   body("password")

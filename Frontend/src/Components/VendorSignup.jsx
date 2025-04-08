@@ -38,8 +38,8 @@ const VendorSignup = () => {
     e.preventDefault();
     setErrors([]);
 
-    console.log("Form Data Submitted:", formData); 
-  
+    console.log("Form Data Submitted:", formData);
+
     try {
       const response = await fetch("http://localhost:3000/api/signup/vendors", {
         method: "POST",
@@ -48,19 +48,21 @@ const VendorSignup = () => {
         },
         body: JSON.stringify(formData),
       });
-  
+
       const data = await response.json();
       console.log("Response from Server:", data);
       if (!response.ok) {
         if (data.errors) {
-          setErrors(data.errors.map((err) => err.msg));}
-        else if (data.message) {
+          setErrors(data.errors.map((err) => err.msg));
+        } else if (data.message) {
           setErrors([data.message]);
         }
         return;
       }
-      alert("Signup successful!A verification email has been sent to your account");
-      navigate("/"); 
+      alert(
+        "Signup successful!A verification email has been sent to your account"
+      );
+      navigate("/");
     } catch (error) {
       setErrors(["Something went wrong. Please try again."]);
     }
@@ -77,12 +79,12 @@ const VendorSignup = () => {
 
   const inputFields = {
     1: [
-      "fullName", 
+      "fullName",
       "email",
       "username",
-      "phone", 
-      "password", 
-      "confirmPassword"
+      "phone",
+      "password",
+      "confirmPassword",
     ],
     2: [
       "businessName",
@@ -222,7 +224,6 @@ const VendorSignup = () => {
               />
             </>
           )}
-
 
           <div className="flex justify-between mt-auto">
             {step > 1 && (

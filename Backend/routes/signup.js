@@ -10,6 +10,7 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// Email transporter setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -18,18 +19,22 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Customer Signup Route
 router.post("/customers", validateSignup("customer"), async (req, res) => {
-  console.log("Received Data:", req.body);
+  console.log("Received Customer Data:", req.body);
 
   try {
     const {
-      fullName,
+      firstName,
+      middleName, // Optional
+      lastName, // Optional
       email,
       username,
       password,
       confirmPassword,
       phone,
       houseNo,
+      street, // Added street separately
       landmark,
       city,
       state,
@@ -37,14 +42,15 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
       pincode,
     } = req.body;
 
-    if (password != confirmPassword) {
-      return res.status(400).json({ error: "Password does not match" });
+    if (password !== confirmPassword) {
+      return res.status(400).json({ error: "Passwords do not match" });
     }
+
     const checkUserSql =
       "SELECT * FROM customers WHERE username = ? OR email = ?";
     db.query(checkUserSql, [username, email], async (err, result) => {
       if (err) {
-        console.error("Error checking user:", err);
+        console.error("Error checking customer:", err);
         return res.status(500).json({ error: "Database error" });
       }
       if (result.length > 0) {
@@ -57,22 +63,26 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-
       const verificationToken = jwt.sign({ email }, JWT_SECRET, {
         expiresIn: "1d",
       });
 
-      const insertSql = `INSERT INTO customers (full_name, email,username, password, phone, house_no, landmark, city, state, country, pincode, is_verified)
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)`;
+      const insertSql = `INSERT INTO customers 
+        (first_name, middle_name, last_name, email, username, password, phone, house_no, street, landmark, city, state, country, pincode, is_verified)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)`;
+
       db.query(
         insertSql,
         [
-          fullName,
+          firstName,
+          middleName || null,
+          lastName || null,
           email,
           username,
           hashedPassword,
           phone,
           houseNo,
+          street,
           landmark,
           city,
           state,
@@ -91,7 +101,7 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
             from: `"EasyMart" <${process.env.EMAIL}>`,
             to: email,
             subject: "Verify your email",
-            html: `<p>Hi ${fullName},</p>
+            html: `<p>Hi ${firstName} ${lastName || ""},</p>
                    <p>Welcome to our platform! 🎉</p>
                    <p>Please confirm your email address by clicking the link below:</p>
                    <a href="${verificationUrl}">Verify Email</a>
@@ -107,11 +117,12 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
       );
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Internal Server Error" });
+    console.error("Customer signup error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
+// Vendor Signup Route
 router.post("/vendors", validateSignup("vendor"), async (req, res) => {
   console.log("Received Data (Vendor):", req.body);
 
@@ -168,9 +179,22 @@ router.post("/vendors", validateSignup("vendor"), async (req, res) => {
       db.query(
         insertSql,
         [
-          fullName, email, username, hashedPassword, phone, businessName, businessType,
-          businessRegNo, businessAddress, website, storeName, storeDescription,
-          productCategories, shippingPolicy, returnPolicy, false,
+          fullName,
+          email,
+          username,
+          hashedPassword,
+          phone,
+          businessName,
+          businessType,
+          businessRegNo,
+          businessAddress,
+          website,
+          storeName,
+          storeDescription,
+          productCategories,
+          shippingPolicy,
+          returnPolicy,
+          false,
         ],
         async (err) => {
           if (err) {

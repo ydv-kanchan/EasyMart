@@ -6,5 +6,10 @@
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd Backend && nodemon index.js",
     "client": "cd Frontend && npm run dev"
+  },
+  "dependencies": {
+    "framer-motion": "^12.6.3",
+    "lucide-react": "^0.487.0",
+    "react-icons": "^5.5.0"
   }
 }

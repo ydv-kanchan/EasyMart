@@ -1,91 +1,77 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const router = express.Router();
-const validateLogin = require("../middleware/validateLogin");
-const comparePassword = require("../middleware/comparePassword");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const db = require("../config/db");
-const dotenv = require("dotenv");
+require("dotenv").config();
 
-dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
-
-router.post("/customer", validateLogin, async (req, res) => {
+const loginUser = (req, res, userType) => {
   const { email, password } = req.body;
+  const table = userType === "customer" ? "customers" : "vendors";
 
-  try {
-    const findUserSql = "SELECT * FROM customers WHERE email = ?";
-    db.query(findUserSql, [email], async (err, result) => {
+  db.query(
+    `SELECT * FROM ${table} WHERE email = ?`,
+    [email],
+    async (err, results) => {
       if (err) {
-        console.error("Error fetching user:", err);
-        return res.status(500).json({ message: "Database error" });
+        console.error("DB Error:", err);
+        return res.status(500).json({ message: "Internal Server Error" });
       }
 
-      if (result.length === 0) {
-        return res.status(400).json({ message: "User not found" });
+      if (results.length === 0) {
+        return res.status(401).json({ message: "Email not found" });
       }
 
-      const user = result[0];
+      const user = results[0];
+      const match = await bcrypt.compare(password, user.password);
 
+      if (!match) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      // Check if the user is verified
       if (!user.is_verified) {
-        return res.status(400).json({ message: "Please verify your email before logging in." });
+        return res.status(403).json({
+          message:
+            "Email not verified. Please check your inbox to verify your account.",
+        });
       }
 
-      const isMatch = await  comparePassword(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
+      const token = jwt.sign({ id: user.id, role: userType }, JWT_SECRET, {
+        expiresIn: "30m",
+      });
 
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: false, // Change to true if using HTTPS
+        sameSite: "Lax",
+        maxAge: 30 * 60 * 1000, // 30 minutes
+      });
 
       res.status(200).json({
         message: "Login successful",
-        token: token,
+        user: {
+          id: user.id,
+          name: user.full_name || user.fullName,
+          email: user.email,
+          username: user.username,
+          role: userType,
+        },
       });
-    });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ message: "Error logging in" });
-  }
+    }
+  );
+};
+
+// Customer login
+router.post("/customer", (req, res) => {
+  loginUser(req, res, "customer");
 });
 
-router.post("/seller", validateLogin, async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const findUserSql = "SELECT * FROM vendors WHERE email = ?";
-    db.query(findUserSql, [email], async (err, result) => {
-      if (err) {
-        console.error("Error fetching user:", err);
-        return res.status(500).json({ message: "Database error" });
-      }
-
-      if (result.length === 0) {
-        return res.status(400).json({ message: "User not found" });
-      }
-
-      const user = result[0];
-
-      if (!user.is_verified) {
-        return res.status(400).json({ message: "Please verify your email before logging in." });
-      }
-
-      const isMatch = await  comparePassword(password, user.password);
-      if (!isMatch) {
-        return res.status(400).json({ message: "Incorrect password" });
-      }
-
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: "1h" });
-
-      res.status(200).json({
-        message: "Login successful",
-        token: token,
-      });
-    });
-  } catch (error) {
-    console.error("Error during login:", error);
-    res.status(500).json({ message: "Error logging in" });
-  }
+// Vendor login
+router.post("/vendor", (req, res) => {
+  loginUser(req, res, "vendor");
 });
 
 module.exports = router;
