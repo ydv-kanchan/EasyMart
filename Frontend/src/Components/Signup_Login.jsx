@@ -29,12 +29,13 @@ const SignUp_Login = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          credentials: "include", // if using cookies
           body: JSON.stringify({ email: email.trim(), password }),
         }
       );
 
       const data = await response.json();
+      console.log(data);
 
       if (!response.ok) {
         setError(data.message || "Invalid credentials.");
@@ -42,12 +43,17 @@ const SignUp_Login = () => {
         return;
       }
 
+      // 🔥 Save both user and token to localStorage
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("token", data.token); // store the JWT token
+
       if (userType === "customer") {
         navigate("/home");
-      } else if (userType === "seller") {
+      } else if (userType === "vendor") {
         navigate("/vendorHome");
       }
     } catch (error) {
+      console.error(error);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -93,6 +99,7 @@ const SignUp_Login = () => {
                 required
               />
             </div>
+
             <div className="mb-5 flex justify-center items-center gap-4">
               <div className="flex items-center gap-2">
                 <input
@@ -123,12 +130,14 @@ const SignUp_Login = () => {
                 </label>
               </div>
             </div>
+
             <p
               className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4"
               onClick={() => navigate("/forgot-password")}
             >
               Forgot Password?
             </p>
+
             <button
               type="submit"
               disabled={loading}

@@ -7,7 +7,6 @@ require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-
 const handleLogin = (req, res, userType, idField) => {
   const { email, password } = req.body;
   const table = userType === "customer" ? "customers" : "vendors";
@@ -35,19 +34,23 @@ const handleLogin = (req, res, userType, idField) => {
       });
     }
 
+    // ✅ Sign JWT token
     const token = jwt.sign({ id: user[idField], role: userType }, JWT_SECRET, {
       expiresIn: "30m",
     });
 
+    // ✅ Set cookie (optional for extra safety)
     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: false, // Change to true if using HTTPS in production
       sameSite: "Lax",
       maxAge: 30 * 60 * 1000,
     });
 
+    // ✅ Return user info + token in response
     res.status(200).json({
       message: "Login successful",
+      token, // 👉 send the token for frontend usage
       user: {
         id: user[idField],
         name: user.full_name || user.fullName,
@@ -64,6 +67,7 @@ router.post("/customer", (req, res) => {
 });
 
 router.post("/vendor", (req, res) => {
+  console.log("Reached the vendor login route");
   handleLogin(req, res, "vendor", "vendor_id"); 
 });
 

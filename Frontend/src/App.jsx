@@ -8,6 +8,8 @@ import VendorSignup from "./Components/VendorSignup";
 import Home from "./Components/Home";
 import Profile from "./Components/Profile";
 import VendorHome from "./Components/VendorHome";
+import AddProduct from "./Components/AddProduct";
+import VendorProductList from "./Components/VendorProductList";
 
 function App() {
   const location = useLocation();
@@ -33,6 +35,7 @@ function App() {
         <Route path="/vendorHome" element={<VendorHome />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/add-product" element={<AddProduct />}></Route>
+        <Route path="/vendor-product-list" element={<VendorProductList />}></Route>
       </Routes>
     </div>
   );
