@@ -5,10 +5,17 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
+const multer = require("multer");
 const validateSignup = require("../middleware/validateSignup");
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "uploads/"),
+  filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
+});
+const upload = multer({ storage });
 
 // Email transporter setup
 const transporter = nodemailer.createTransport({
@@ -122,104 +129,147 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
   }
 });
 
-// Vendor Signup Route
-router.post("/vendors", validateSignup("vendor"), async (req, res) => {
-  console.log("Received Data (Vendor):", req.body);
-
+router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
   try {
     const {
-      fullName,
+      first_name,
+      middle_name,
+      last_name,
       email,
       username,
       password,
-      confirmPassword,
       phone,
       businessName,
-      businessType,
-      businessRegNo,
-      businessAddress,
-      website,
       storeName,
       storeDescription,
-      productCategories,
-      shippingPolicy,
-      returnPolicy,
     } = req.body;
 
-    if (password != confirmPassword) {
-      return res.status(400).json({ error: "Passwords do not match" });
-    }
-    const checkUserSql =
-      "SELECT * FROM vendors WHERE username = ? OR email = ?";
-    db.query(checkUserSql, [username, email], async (err, result) => {
+    console.log("Request Body in /vendors route:", req.body);
+
+    // File upload
+    const storeLogo = req.file?.filename || null;
+
+    // Product categories (can be string or array)
+    const categories = req.body.productCategories || [];
+    const productCategories = Array.isArray(categories)
+      ? categories
+      : [categories];
+
+    const cleanCategories = productCategories.filter(
+      (cat) => typeof cat === "string" && cat.trim() !== ""
+    );
+
+    // Check if username or email already exists
+    const checkSql = "SELECT * FROM vendors WHERE username = ? OR email = ?";
+    db.query(checkSql, [username, email], async (err, result) => {
       if (err) {
-        console.error("Error checking vendor:", err);
-        return res.status(500).json({ error: "Database error" });
+        console.error("Database Error on Check:", err);
+        return res
+          .status(500)
+          .json({ message: "Database error", error: err.message });
       }
+
       if (result.length > 0) {
         return res.status(400).json({
           message:
             result[0].username === username
-              ? "Username is already taken"
-              : "Email is already taken",
+              ? "Username already taken"
+              : "Email already registered",
         });
       }
 
+      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
-      const verificationToken = jwt.sign({ email }, JWT_SECRET, {
-        expiresIn: "1d",
-      });
-      const verificationUrl = `http://localhost:3000/api/verify/vendor?token=${verificationToken}`;
 
-      const insertSql = `INSERT INTO vendors 
-         (fullName, email, username, password, phone, businessName, businessType, businessRegNo,
-        businessAddress, website, storeName, storeDescription, productCategories, shippingPolicy, returnPolicy, is_verified) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      // Insert vendor details
+      const insertSql = `
+        INSERT INTO vendors (
+          first_name, middle_name, last_name, email, username,
+          password, phone, businessName, storeName,
+          storeDescription, store_logo, is_verified
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, false)
+      `;
 
       db.query(
         insertSql,
         [
-          fullName,
+          first_name,
+          middle_name || null,
+          last_name || null,
           email,
           username,
           hashedPassword,
           phone,
           businessName,
-          businessType,
-          businessRegNo,
-          businessAddress,
-          website,
           storeName,
           storeDescription,
-          productCategories,
-          shippingPolicy,
-          returnPolicy,
-          false,
+          storeLogo,
         ],
-        async (err) => {
+        async (err, result) => {
           if (err) {
-            console.error("Error inserting vendor:", err);
-            return res.status(500).json({ error: "Database error" });
+            console.error("Database Insert Error:", err);
+            return res
+              .status(500)
+              .json({ message: "Insert error", error: err.message });
           }
 
+          const vendorId = result.insertId;
+
+          // Insert vendor categories using category_id
+          const getCategoryIdSql = "SELECT category_id FROM categories WHERE category_name = ?";
+          const insertVendorCategorySql = "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
+
+          for (let i = 0; i < cleanCategories.length; i++) {
+            const catName = cleanCategories[i];
+
+            db.query(getCategoryIdSql, [catName], (err, categoryResult) => {
+              if (err || categoryResult.length === 0) {
+                console.error(`Category "${catName}" not found or error occurred:`, err);
+                return;
+              }
+
+              const categoryId = categoryResult[0].category_id;
+
+              db.query(insertVendorCategorySql, [vendorId, categoryId], (err) => {
+                if (err) {
+                  console.error("Error inserting into vendor_categories:", err);
+                } else {
+                  console.log(`Inserted vendor category: ${catName} (ID: ${categoryId})`);
+                }
+              });
+            });
+          }
+
+          console.log("Vendor inserted with ID:", vendorId);
+
+          // Generate email verification token
+          const token = jwt.sign({ email, role: "vendor" }, JWT_SECRET, {
+            expiresIn: "1d",
+          });
+
+          const verifyURL = `http://localhost:3000/api/verify/vendor?token=${token}`;
+
+          // Send verification email
           await transporter.sendMail({
             from: `"EasyMart" <${process.env.EMAIL}>`,
             to: email,
             subject: "Verify your email",
-            html: `<p>Hi ${fullName},</p><p>Welcome to our platform! 🎉</p>
-                  <p>Please confirm your email:</p>
-                  <a href="${verificationUrl}">Verify Email</a>`,
+            html: `
+              <p>Hi ${first_name},</p>
+              <p>Click below to verify your email and activate your store:</p>
+              <a href="${verifyURL}">Verify Email</a>
+            `,
           });
 
           res.status(201).json({
-            message: "Vendor signup successful. Please verify your email.",
+            message: "Vendor signed up successfully. Verification email sent.",
           });
         }
       );
     });
-  } catch (error) {
-    console.error("Internal Server Error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+  } catch (err) {
+    console.error("Vendor Signup Error:", err);
+    res.status(500).json({ message: "Internal Server Error", error: err.message });
   }
 });
 
