@@ -8,6 +8,7 @@ import CustomerSignup from "./Components/CustomerSignup";
 import VendorSignup from "./Components/VendorSignup";
 import Home from "./Components/Home";
 import Profile from "./Components/Profile";
+import AddProduct from "./Components/AddProduct";
 
 function App() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/add-product" element={<AddProduct />}></Route>
       </Routes>
     </div>
   );

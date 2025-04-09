@@ -97,14 +97,14 @@ const SignUp_Login = () => {
               <div className="flex items-center gap-2">
                 <input
                   type="radio"
-                  id="seller"
+                  id="vendor"
                   name="userType"
-                  value="seller"
-                  checked={userType === "seller"}
-                  onChange={() => setUserType("seller")}
+                  value="vendor"
+                  checked={userType === "vendor"}
+                  onChange={() => setUserType("vendor")}
                   className="accent-blue-500"
                 />
-                <label htmlFor="seller" className="text-gray-700">
+                <label htmlFor="vendor" className="text-gray-700">
                   Seller
                 </label>
               </div>
