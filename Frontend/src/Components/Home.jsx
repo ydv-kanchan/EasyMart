@@ -9,7 +9,7 @@ const Home = () => {
       <Navbar2 />
       <CategoryNavbar />
       <Slider />
-      <h1>Home Page</h1>
+      <Link to="/add-product"> add button</Link>
     </div>
   );
 };
