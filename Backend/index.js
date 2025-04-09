@@ -3,12 +3,11 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 
 const signupRouter = require("./routes/signup");
-const verifyRoutes = require("./routes/verify"); 
+const verifyRoutes = require("./routes/verify");
 const loginRouter = require("./routes/login");
 const protectedRoutes = require("./routes/protected");
 const logoutRoute = require("./routes/logout");
-const profileRoutes = require("./routes/profile"); 
-
+const profileRoutes = require("./routes/profile");
 const app = express();
 require("dotenv").config();
 
@@ -27,7 +26,7 @@ app.use("/api/verify", verifyRoutes); // ✅ still valid if needed
 app.use("/api/login", loginRouter);
 app.use("/api", protectedRoutes);
 app.use("/", logoutRoute);
-app.use("/api/profile", profileRoutes); // ✅ verify-email is routed here
+app.use("/api/profile", profileRoutes); 
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

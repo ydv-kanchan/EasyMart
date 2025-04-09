@@ -188,7 +188,6 @@ router.get("/verify-email", (req, res) => {
   });
 });
 
-
 // ========== FETCH Customer Profile ==========
 router.get("/customer", authenticateToken, (req, res) => {
   const { role, id } = req.user;
