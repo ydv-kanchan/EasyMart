@@ -69,9 +69,9 @@ router.post("/customer", (req, res) => {
   loginUser(req, res, "customer");
 });
 
-// Vendor login
-router.post("/vendor", (req, res) => {
-  loginUser(req, res, "vendor");
+
+router.post("/seller", (req, res) => {
+  loginUser(req, res, "seller");
 });
 
 module.exports = router;
