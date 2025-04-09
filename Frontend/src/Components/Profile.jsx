@@ -1,4 +1,7 @@
+// src/components/Profile.jsx
+
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiUser,
   FiBox,
@@ -23,17 +26,18 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 );
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [selectedTab, setSelectedTab] = useState("profile");
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
     if (confirmLogout) {
       try {
-        const res = await axios.get("http://localhost:3000/api/logout", {
-          withCredentials: true,
+        await fetch("http://localhost:3000/logout", {
+          method: "GET",
+          credentials: "include",
         });
-        alert(res.data.message); // "Logged out successfully"
-        window.location.href = "/login"; // redirect to login page
+        navigate("/");
       } catch (error) {
         console.error("Logout failed:", error);
         alert("Something went wrong during logout.");
@@ -66,9 +70,6 @@ const Profile = () => {
             <p className="text-gray-600 mt-2">Your cart is empty.</p>
           </div>
         );
-      case "logout":
-        handleLogout();
-        return null;
       default:
         return null;
     }
@@ -107,7 +108,7 @@ const Profile = () => {
           icon={FiLogOut}
           label="Logout"
           active={false}
-          onClick={() => setSelectedTab("logout")}
+          onClick={handleLogout}
         />
       </div>
 
