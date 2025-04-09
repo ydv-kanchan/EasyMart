@@ -1,261 +1,165 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FcGoogle } from "react-icons/fc";
+import axios from 'axios';
 
 const VendorSignup = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState([]);
+
   const [formData, setFormData] = useState({
-    fullName: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
     email: "",
     username: "",
     password: "",
-    confirmPassword: "",
     phone: "",
     businessName: "",
-    businessType: "",
-    businessRegNo: "",
-    businessAddress: "",
-    website: "",
     storeName: "",
     storeDescription: "",
     storeLogo: null,
-    productCategories: "",
-    shippingPolicy: "",
-    returnPolicy: "",
+    productCategories: [],
   });
 
-  const [errors, setErrors] = useState([]);
+  const categories = ["Fashion", "Beauty", "Toys", "Home"];
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    setFormData({ ...formData, [name]: type === "file" ? files[0] : value });
+    if (type === "file") {
+      setFormData({ ...formData, [name]: files[0] });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
+  };
+
+  const handleCategoryChange = (category) => {
+    setFormData((prev) => {
+      const updated = prev.productCategories.includes(category)
+        ? prev.productCategories.filter((c) => c !== category)
+        : [...prev.productCategories, category];
+      return { ...prev, productCategories: updated };
+    });
   };
 
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+
+  const handleSubmit = async () => {
     setErrors([]);
 
-    console.log("Form Data Submitted:", formData);
-
     try {
-      const response = await fetch("http://localhost:3000/api/signup/vendors", {
-        method: "POST",
+      const payload = new FormData();
+      payload.append("first_name", formData.first_name);
+      payload.append("middle_name", formData.middle_name);
+      payload.append("last_name", formData.last_name);
+      payload.append("email", formData.email);
+      payload.append("username", formData.username);
+      payload.append("password", formData.password);
+      payload.append("phone", formData.phone);
+      payload.append("businessName", formData.businessName);
+      payload.append("storeName", formData.storeName);
+      payload.append("storeDescription", formData.storeDescription);
+      if (formData.storeLogo) {
+        payload.append("storeLogo", formData.storeLogo);
+      }
+      formData.productCategories.forEach((cat) =>
+        payload.append("productCategories[]", cat)
+      );
+
+      const response = await axios.post("http://localhost:3000/api/signup/vendors", payload, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
-        body: JSON.stringify(formData),
       });
 
-      const data = await response.json();
-      console.log("Response from Server:", data);
-      if (!response.ok) {
-        if (data.errors) {
-          setErrors(data.errors.map((err) => err.msg));
-        } else if (data.message) {
-          setErrors([data.message]);
-        }
+      if (response.status !== 200) {
+        setErrors(response.data.errors || [response.data.message]);
         return;
       }
-      alert(
-        "Signup successful!A verification email has been sent to your account"
-      );
+
+      alert("Signup successful! Verification email sent.");
       navigate("/");
-    } catch (error) {
+    } catch (err) {
+      console.error("Error:", err);
       setErrors(["Something went wrong. Please try again."]);
     }
   };
 
-  const stepTitles = [
-    "Basic Information",
-    "Business Details",
-    "Store Details",
-    "Product Categories",
-    "Shipping & Returns",
-    "Confirm Details",
-  ];
-
-  const inputFields = {
-    1: [
-      "fullName",
-      "email",
-      "username",
-      "phone",
-      "password",
-      "confirmPassword",
-    ],
-    2: [
-      "businessName",
-      "businessType",
-      "businessRegNo",
-      "businessAddress",
-      "website",
-    ],
-  };
-
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-64px)] bg-gradient-to-br from-orange-50 to-orange-100 text-gray-900 p-6">
-      <div
-        className={`bg-white flex flex-col w-full shadow-xl rounded-2xl p-10 relative transition-all duration-300 transform hover:scale-[1.02] ${
-          step === 6 ? "max-w-lg min-h-[500px]" : "max-w-2xl min-h-[550px]"
-        }`}
-      >
-        <h2 className="text-4xl font-extrabold text-gray-800 text-center mb-5">
-          {stepTitles[step - 1]}
+    <div className="flex justify-center items-center min-h-screen bg-orange-100 p-6">
+      <div className="bg-white shadow-xl rounded-2xl p-10 w-full max-w-2xl">
+        <h2 className="text-3xl font-bold text-center mb-6">
+          {step === 1
+            ? "Personal Info"
+            : step === 2
+            ? "Business & Store Info"
+            : "Product Categories"}
         </h2>
 
         {errors.length > 0 && (
           <div className="text-red-500 mb-4 text-center">
-            {errors.map((err, index) => (
-              <p key={index}>{err}</p>
+            {errors.map((err, i) => (
+              <p key={i}>{err}</p>
             ))}
           </div>
         )}
 
-        <div className="flex justify-center mb-6">
-          <div className="flex items-center space-x-5">
-            {[...Array(6)].map((_, num) => (
-              <div
-                key={num}
-                className={`h-8 w-8 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-300 ${
-                  step > num
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-300 text-gray-600"
-                }`}
-              >
-                {num + 1}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col flex-grow">
-          {inputFields[step] &&
-            inputFields[step].map((field) => (
-              <input
-                key={field}
-                type={field.includes("password") ? "password" : "text"}
-                name={field}
-                placeholder={field.replace(/([A-Z])/g, " $1").trim()}
-                value={formData[field]}
-                onChange={handleChange}
-                className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-                required
-              />
-            ))}
-
+        <div className="flex flex-col gap-4">
           {step === 1 && (
             <>
-              <div className="flex justify-end mt-auto">
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
-                >
-                  Next
-                </button>
-              </div>
+              <input name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="middle_name" placeholder="Middle Name" value={formData.middle_name} onChange={handleChange} className="p-3 border rounded" />
+              <input name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="email" type="email" placeholder="Email" value={formData.email} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="username" placeholder="Username" value={formData.username} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="password" type="password" placeholder="Password" value={formData.password} onChange={handleChange} required className="p-3 border rounded" />
+            </>
+          )}
 
-              {/* <div className="flex items-center my-3">
-                <hr className="flex-grow border-gray-300" />
-                <span className="px-3 text-gray-500 text-sm">OR</span>
-                <hr className="flex-grow border-gray-300" />
-              </div>
-
-              <button className="w-full border border-gray-400 py-3 flex items-center justify-center gap-3 rounded-lg hover:bg-gray-100 transition transform hover:scale-105 text-lg font-medium">
-                <FcGoogle className="text-2xl" />
-                <span className="text-gray-700">Signup with Google</span>
-              </button> */}
+          {step === 2 && (
+            <>
+              <input name="businessName" placeholder="Business Name" value={formData.businessName} onChange={handleChange} required className="p-3 border rounded" />
+              <input name="storeName" placeholder="Store Name" value={formData.storeName} onChange={handleChange} required className="p-3 border rounded" />
+              <textarea name="storeDescription" placeholder="Store Description" value={formData.storeDescription} onChange={handleChange} required className="p-3 border rounded" />
+              <input type="file" name="storeLogo" onChange={handleChange} className="p-3 border rounded" />
             </>
           )}
 
           {step === 3 && (
             <>
-              <input
-                type="text"
-                name="storeName"
-                placeholder="Store Name"
-                value={formData.storeName}
-                onChange={handleChange}
-                className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-                required
-              />
-              <textarea
-                name="storeDescription"
-                placeholder="Store Description"
-                value={formData.storeDescription}
-                onChange={handleChange}
-                className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-                required
-              />
+              <p className="font-medium mb-2">Select Product Categories:</p>
+              {categories.map((category) => (
+                <label key={category} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.productCategories.includes(category)}
+                    onChange={() => handleCategoryChange(category)}
+                  />
+                  <span>{category}</span>
+                </label>
+              ))}
             </>
           )}
 
-          {step === 4 && (
-            <textarea
-              name="productCategories"
-              placeholder="Main Product Categories"
-              value={formData.productCategories}
-              onChange={handleChange}
-              className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-              required
-            />
-          )}
-
-          {step === 5 && (
-            <>
-              <textarea
-                name="shippingPolicy"
-                placeholder="Shipping Policy"
-                value={formData.shippingPolicy}
-                onChange={handleChange}
-                className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-                required
-              />
-              <textarea
-                name="returnPolicy"
-                placeholder="Return & Refund Policy"
-                value={formData.returnPolicy}
-                onChange={handleChange}
-                className="w-full p-3 border mb-3 rounded-md focus:ring-2 focus:ring-green-400 transition-all"
-                required
-              />
-            </>
-          )}
-
-          <div className="flex justify-between mt-auto">
+          <div className="flex justify-between mt-4">
             {step > 1 && (
-              <button
-                type="button"
-                onClick={prevStep}
-                className="bg-gray-400 text-white py-2 px-6 rounded-lg hover:bg-gray-500 transition-all duration-300 transform hover:scale-105"
-              >
+              <button type="button" onClick={prevStep} className="bg-gray-400 text-white py-2 px-4 rounded hover:bg-gray-500">
                 Back
               </button>
             )}
-
-            {step > 1 && step < 5 && (
-              <button
-                type="button"
-                onClick={nextStep}
-                className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
-              >
+            {step < 3 ? (
+              <button type="button" onClick={nextStep} className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600">
                 Next
               </button>
-            )}
-
-            {step === 5 && (
-              <button
-                type="submit"
-                className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
-              >
+            ) : (
+              <button type="button" onClick={handleSubmit} className="bg-orange-500 text-white py-2 px-4 rounded hover:bg-orange-600">
                 Submit
               </button>
             )}
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
