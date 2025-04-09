@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 
 const SignUp_Login = () => {
@@ -7,9 +6,9 @@ const SignUp_Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
-
+  const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState("customer");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -22,6 +21,7 @@ const SignUp_Login = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const response = await fetch(
@@ -30,19 +30,27 @@ const SignUp_Login = () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email: email.trim(), password }),
         }
       );
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message);
+        setError(data.message || "Invalid credentials.");
+        setLoading(false);
         return;
       }
-      navigate("/home");
+
+      if (userType === "customer") {
+        navigate("/home");
+      } else if (userType === "seller") {
+        navigate("/vendorHome");
+      }
     } catch (error) {
       setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -53,7 +61,13 @@ const SignUp_Login = () => {
           <h2 className="text-4xl font-extrabold text-gray-800 mb-6">
             Welcome Back!
           </h2>
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+
+          {error && (
+            <div className="text-red-600 bg-red-100 border border-red-300 px-4 py-2 rounded-md w-full max-w-md text-center mb-4">
+              {error}
+            </div>
+          )}
+
           <form className="w-full max-w-md" onSubmit={handleLogin}>
             <div className="mb-5">
               <label className="block text-gray-700 text-sm font-semibold mb-2">
@@ -109,29 +123,24 @@ const SignUp_Login = () => {
                 </label>
               </div>
             </div>
-            <p className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4">
+            <p
+              className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4"
+              onClick={() => navigate("/forgot-password")}
+            >
               Forgot Password?
             </p>
             <button
               type="submit"
-              className="w-full bg-blue-300 text-gray py-3 rounded-lg shadow-lg hover:bg-blue-400 transition transform hover:scale-105"
+              disabled={loading}
+              className={`w-full py-3 rounded-lg shadow-lg transition transform hover:scale-105 ${
+                loading
+                  ? "bg-blue-200 text-white cursor-not-allowed"
+                  : "bg-blue-400 text-white hover:bg-blue-500"
+              }`}
             >
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
-
-          {/* <div className="flex items-center my-6 w-full max-w-md">
-            <hr className="flex-grow border-gray-300" />
-            <span className="mx-3 text-gray-500">OR</span>
-            <hr className="flex-grow border-gray-300" />
-          </div> */}
-
-          {/* <button className="w-full max-w-md border border-gray-400 py-3 flex items-center justify-center gap-3 rounded-lg hover:bg-gray-100 transition transform hover:scale-105">
-            <FcGoogle className="text-3xl" />
-            <span className="text-gray-700 font-semibold">
-              Sign in with Google
-            </span>
-          </button> */}
 
           {isMobile && (
             <p className="mt-6 text-gray-600">
@@ -167,12 +176,6 @@ const SignUp_Login = () => {
             >
               Sign Up
             </button>
-            {/* <button className="w-full border border-white py-3 flex items-center justify-center gap-3 rounded-lg hover:bg-blue-300 transition transform hover:scale-105">
-              <FcGoogle className="text-3xl" />
-              <span className="text-white font-semibold">
-                Sign up with Google
-              </span>
-            </button> */}
           </div>
         )}
       </div>
