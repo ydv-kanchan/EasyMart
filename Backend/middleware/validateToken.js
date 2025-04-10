@@ -18,7 +18,6 @@ const validateToken = (req, res, next) => {
       return res.status(403).json({ message: "Access denied: Not a vendor" });
     }
 
-    // ✅ Set vendor data on request object
     req.vendor = { vendor_id: decoded.id, role: decoded.role };
     next();
   } catch (err) {
