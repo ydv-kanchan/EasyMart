@@ -162,7 +162,7 @@ router.get("/verify-email", (req, res) => {
             { expiresIn: "7d" }
           );
 
-          res.cookie("token", newToken, {
+          res.cookie("customer_token", newToken, {
             httpOnly: true,
             secure: false,
             sameSite: "Lax",
@@ -212,7 +212,6 @@ router.get("/customer", authenticateToken, (req, res) => {
 
 // ========== FETCH Vendor Profile ==========
 router.get("/vendor", authenticateToken, (req, res) => {
-  // console.log("🔹 Vendor profile route hit");
   const { role, id } = req.user;
 
   if (role !== "vendor") {

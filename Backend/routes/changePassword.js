@@ -8,9 +8,17 @@ require("dotenv").config();
 
 // POST /api/change-password/:role
 router.post("/change-password/:role", async (req, res) => {
-  const token = req.cookies.token; // ✅ Use token from cookies
-  const { currentPassword, newPassword } = req.body;
   const role = req.params.role;
+
+  // ✅ Use correct cookie based on role
+  const token =
+    role === "customer"
+      ? req.cookies.customer_token
+      : role === "vendor"
+      ? req.cookies.vendor_token
+      : null;
+
+  const { currentPassword, newPassword } = req.body;
 
   if (!token) {
     return res.status(401).json({ error: "Authorization token missing." });
@@ -25,7 +33,7 @@ router.post("/change-password/:role", async (req, res) => {
     let table, idColumn;
     if (role === "customer") {
       table = "customers";
-      idColumn = "id"; // ✅ You mentioned it's just `id`
+      idColumn = "id";
     } else if (role === "vendor") {
       table = "vendors";
       idColumn = "vendor_id";
