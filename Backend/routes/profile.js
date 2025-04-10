@@ -212,22 +212,22 @@ router.get("/customer", authenticateToken, (req, res) => {
 
 // ========== FETCH Vendor Profile ==========
 router.get("/vendor", authenticateToken, (req, res) => {
+  // console.log("🔹 Vendor profile route hit");
   const { role, id } = req.user;
+
   if (role !== "vendor") {
     return res.status(403).json({ message: "Unauthorized role" });
   }
 
   const query = `
-    SELECT fullName, email, username, phone, businessName, businessType,
-           businessRegNo, businessAddress, website, storeName,
-           storeDescription, productCategories
-    FROM vendors WHERE id = ?
+    SELECT first_name, middle_name, last_name, email, username, phone
+    FROM vendors WHERE vendor_id = ?
   `;
 
   db.query(query, [id], (err, results) => {
-    if (err) return res.status(500).json({ error: "DB Error" });
+    if (err) return res.status(500).json({ error: "Database error" });
     if (results.length === 0)
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Vendor not found" });
 
     res.json(results[0]);
   });

@@ -1,34 +1,52 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { PiLockKeyLight } from "react-icons/pi";
+import axios from "axios";
 
 const VendorProfileDetails = () => {
   const [editMode, setEditMode] = useState(false);
   const [emailChanged, setEmailChanged] = useState(false);
+  const [originalEmail, setOriginalEmail] = useState("");
   const [formData, setFormData] = useState({
-    full_name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "+91 9876543210",
-    shop_name: "Doe's Emporium",
-    city: "Ludhiana",
-    state: "Punjab",
-    country: "India",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    email: "",
+    username: "",
+    phone: "",
   });
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/profile/vendor",
+          {
+            withCredentials: true,
+          }
+        );
+        setFormData(res.data);
+        setOriginalEmail(res.data.email);
+      } catch (err) {
+        console.error("Error fetching vendor profile:", err);
+      }
+    };
+
+    fetchVendor();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "email" && value !== "johndoe@example.com") {
-      setEmailChanged(true);
-    } else if (name === "email") {
-      setEmailChanged(false);
+    if (name === "email") {
+      setEmailChanged(value !== originalEmail);
     }
   };
 
   const inputBox = (label, name, value) => (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-full">
       <div
         className="bg-blue-50 shadow-sm px-4 py-3 border-b-2 border-blue-300 flex justify-between items-center w-full cursor-text"
         onClick={() => document.getElementById(name)?.focus()}
@@ -44,7 +62,7 @@ const VendorProfileDetails = () => {
             type="text"
             name={name}
             id={name}
-            value={formData[name] || ""}
+            value={value}
             onChange={handleChange}
             className="bg-transparent text-gray-500 w-full text-right outline-none cursor-text"
           />
@@ -66,14 +84,19 @@ const VendorProfileDetails = () => {
         Vendor Profile
       </h2>
 
-      <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
-        {inputBox("Full Name", "full_name", formData.full_name)}
-        {inputBox("Email", "email", formData.email)}
-        {inputBox("Phone", "phone", formData.phone)}
-        {inputBox("Shop Name", "shop_name", formData.shop_name)}
-        {inputBox("City", "city", formData.city)}
-        {inputBox("State", "state", formData.state)}
-        {inputBox("Country", "country", formData.country)}
+      <div className="flex-grow text-gray-800 text-[16px] px-8 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-6 mb-6">
+          {inputBox("First Name", "first_name", formData.first_name)}
+          {inputBox("Middle Name", "middle_name", formData.middle_name)}
+          {inputBox("Last Name", "last_name", formData.last_name)}
+        </div>
+
+        <div className="mb-6">{inputBox("Email", "email", formData.email)}</div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+          {inputBox("Username", "username", formData.username)}
+          {inputBox("Phone", "phone", formData.phone)}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">

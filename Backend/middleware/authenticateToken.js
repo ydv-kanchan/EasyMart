@@ -4,7 +4,7 @@ require("dotenv").config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const authenticateToken = (req, res, next) => {
-  console.log("req.cookies:", req.cookies);
+  console.log("🔐 Authenticated User:", req.user);
 
   // Ensure cookies are being used
   if (!req.cookies || !req.cookies.token) {
