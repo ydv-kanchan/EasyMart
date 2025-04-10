@@ -24,7 +24,7 @@ const NavbarVendor = () => {
 
   return (
     <div className="w-full bg-white shadow">
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between py-0 px-[1cm] h-24">
+      <div className="max-w-[1000px] mx-auto flex items-center justify-between h-20">
         {/* Logo on the left */}
         <div
           className="h-24 cursor-pointer flex items-center"

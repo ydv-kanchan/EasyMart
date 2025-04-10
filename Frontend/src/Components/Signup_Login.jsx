@@ -8,6 +8,11 @@ const SignUp_Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [userType, setUserType] = useState("customer");
+
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetUserType, setResetUserType] = useState("customer");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,7 +34,7 @@ const SignUp_Login = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          credentials: "include", // if using cookies
+          credentials: "include",
           body: JSON.stringify({ email: email.trim(), password }),
         }
       );
@@ -43,9 +48,8 @@ const SignUp_Login = () => {
         return;
       }
 
-      // 🔥 Save both user and token to localStorage
       localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("token", data.token); // store the JWT token
+      localStorage.setItem("token", data.token);
 
       if (userType === "customer") {
         navigate("/home");
@@ -65,7 +69,7 @@ const SignUp_Login = () => {
       <div className="relative bg-white flex w-full max-w-5xl overflow-hidden flex-col md:flex-row shadow-xl rounded-3xl border border-gray-200">
         <div className="w-full md:w-1/2 p-12 flex flex-col justify-center items-center bg-white rounded-l-3xl">
           <h2 className="text-4xl font-extrabold text-gray-800 mb-6">
-            Welcome Back!
+            {isForgotPassword ? "Reset Password" : "Welcome Back!"}
           </h2>
 
           {error && (
@@ -74,82 +78,195 @@ const SignUp_Login = () => {
             </div>
           )}
 
-          <form className="w-full max-w-md" onSubmit={handleLogin}>
-            <div className="mb-5">
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                EMAIL
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                required
-              />
-            </div>
-            <div className="mb-5">
-              <label className="block text-gray-700 text-sm font-semibold mb-2">
-                PASSWORD
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
-                required
-              />
-            </div>
-
-            <div className="mb-5 flex justify-center items-center gap-4">
-              <div className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  id="customer"
-                  name="userType"
-                  value="customer"
-                  checked={userType === "customer"}
-                  onChange={() => setUserType("customer")}
-                  className="accent-blue-500"
-                />
-                <label htmlFor="customer" className="text-gray-700">
-                  Customer
+          {!isForgotPassword ? (
+            <form className="w-full max-w-md" onSubmit={handleLogin}>
+              <div className="mb-5">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
+                  EMAIL
                 </label>
-              </div>
-              <div className="flex items-center gap-2">
                 <input
-                  type="radio"
-                  id="vendor"
-                  name="userType"
-                  value="vendor"
-                  checked={userType === "vendor"}
-                  onChange={() => setUserType("vendor")}
-                  className="accent-blue-500"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  required
                 />
-                <label htmlFor="vendor" className="text-gray-700">
-                  Seller
-                </label>
               </div>
-            </div>
+              <div className="mb-5">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
+                  PASSWORD
+                </label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  required
+                />
+              </div>
 
-            <p
-              className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4"
-              onClick={() => navigate("/forgot-password")}
-            >
-              Forgot Password?
-            </p>
+              <div className="mb-5 flex justify-center items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="customer"
+                    name="userType"
+                    value="customer"
+                    checked={userType === "customer"}
+                    onChange={() => setUserType("customer")}
+                    className="accent-blue-500"
+                  />
+                  <label htmlFor="customer" className="text-gray-700">
+                    Customer
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="vendor"
+                    name="userType"
+                    value="vendor"
+                    checked={userType === "vendor"}
+                    onChange={() => setUserType("vendor")}
+                    className="accent-blue-500"
+                  />
+                  <label htmlFor="vendor" className="text-gray-700">
+                    Seller
+                  </label>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full py-3 rounded-lg shadow-lg transition transform hover:scale-105 ${
-                loading
-                  ? "bg-blue-200 text-white cursor-not-allowed"
-                  : "bg-blue-400 text-white hover:bg-blue-500"
-              }`}
+              <p
+                className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-right mb-4"
+                onClick={() => setIsForgotPassword(true)}
+              >
+                Forgot Password?
+              </p>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 rounded-lg shadow-lg transition transform hover:scale-105 ${
+                  loading
+                    ? "bg-blue-200 text-white cursor-not-allowed"
+                    : "bg-blue-400 text-white hover:bg-blue-500"
+                }`}
+              >
+                {loading ? "Signing in..." : "Sign In"}
+              </button>
+            </form>
+          ) : (
+            <form
+              className="w-full max-w-md"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError("");
+                setLoading(true);
+
+                const dbUserType =
+                  resetUserType === "customer"
+                    ? "customers"
+                    : resetUserType === "vendor"
+                    ? "vendors"
+                    : "";
+
+                try {
+                  const response = await fetch(
+                    "http://localhost:3000/api/forgot-password",
+                    {
+                      method: "POST",
+                      headers: {
+                        "Content-Type": "application/json",
+                      },
+                      body: JSON.stringify({
+                        email: resetEmail.trim(),
+                        userType: dbUserType,
+                      }),
+                    }
+                  );
+
+                  const data = await response.json();
+
+                  if (!response.ok) {
+                    setError(data.message || "Something went wrong.");
+                  } else {
+                    alert("Password reset link has been sent to your email.");
+                    setIsForgotPassword(false);
+                    setResetEmail("");
+                    setResetUserType("customer");
+                  }
+                } catch (err) {
+                  console.error(err);
+                  setError("Something went wrong. Please try again.");
+                } finally {
+                  setLoading(false);
+                }
+              }}
             >
-              {loading ? "Signing in..." : "Sign In"}
-            </button>
-          </form>
+              <div className="mb-5">
+                <label className="block text-gray-700 text-sm font-semibold mb-2">
+                  Enter your email
+                </label>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
+                  required
+                />
+              </div>
+
+              <div className="mb-5 flex justify-center items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="reset-customer"
+                    name="resetUserType"
+                    value="customer"
+                    checked={resetUserType === "customer"}
+                    onChange={() => setResetUserType("customer")}
+                    className="accent-blue-500"
+                  />
+                  <label htmlFor="reset-customer" className="text-gray-700">
+                    Customer
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id="reset-vendor"
+                    name="resetUserType"
+                    value="vendor"
+                    checked={resetUserType === "vendor"}
+                    onChange={() => setResetUserType("vendor")}
+                    className="accent-blue-500"
+                  />
+                  <label htmlFor="reset-vendor" className="text-gray-700">
+                    Seller
+                  </label>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full py-3 rounded-lg shadow-lg transition transform hover:scale-105 ${
+                  loading
+                    ? "bg-blue-200 text-white cursor-not-allowed"
+                    : "bg-blue-400 text-white hover:bg-blue-500"
+                }`}
+              >
+                {loading ? "Sending..." : "Send Reset Link"}
+              </button>
+
+              <p
+                className="text-sm text-blue-500 hover:text-blue-700 cursor-pointer text-center mt-4"
+                onClick={() => setIsForgotPassword(false)}
+              >
+                Back to Login
+              </p>
+            </form>
+          )}
 
           {isMobile && (
             <p className="mt-6 text-gray-600">
