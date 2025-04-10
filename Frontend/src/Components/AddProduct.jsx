@@ -86,7 +86,7 @@ const AddProduct = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-blue-50 p-6">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-lg border border-blue-200">
-        <h2 className="text-2xl font-bold mb-6 text-blue-600 text-center">
+        <h2 className="text-4xl text-gray-800 mb-6 text-center font-extrabold">
           Add New Product
         </h2>
 
@@ -170,7 +170,7 @@ const AddProduct = () => {
         <button
           type="button"
           onClick={handleSubmit}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg"
+          className="w-full bg-blue-600 hover:bg-blue-400 text-white font-semibold py-3 rounded-lg"
         >
           Add Product
         </button>
