@@ -76,7 +76,7 @@ const VendorProfileDetails = () => {
         {inputBox("Country", "country", formData.country)}
       </div>
 
-      <div className="flex justify-between px-8 pb-8 mt-4 w-full">
+      <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">
         {editMode ? (
           <div className="flex justify-end w-full">
             <button

@@ -8,6 +8,7 @@
     "client": "cd Frontend && npm run dev"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "framer-motion": "^12.6.3",
     "lucide-react": "^0.487.0",
     "react-icons": "^5.5.0"

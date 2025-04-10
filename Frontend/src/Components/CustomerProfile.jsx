@@ -3,6 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { PiLockKeyLight } from "react-icons/pi";
+import ChangePassword from "./ChangePassword";
 
 const CustomerProfile = () => {
   const [user, setUser] = useState(null);
@@ -10,6 +11,7 @@ const CustomerProfile = () => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
   const [emailChanged, setEmailChanged] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
 
   useEffect(() => {
     axios
@@ -65,6 +67,7 @@ const CustomerProfile = () => {
       }
     }
   };
+
   if (!user)
     return <div className="text-gray-600 text-sm mt-10">Loading...</div>;
 
@@ -112,65 +115,76 @@ const CustomerProfile = () => {
         Profile
       </h2>
 
-      <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
-        {inputBox("First Name", "first_name", user.first_name)}
-        {inputBox("Middle Name", "middle_name", user.middle_name || "")}
-        {inputBox("Last Name", "last_name", user.last_name || "")}
-        {inputBox("Username", "username", user.username)}
-        {inputBox("Email", "email", user.email)}
-        {inputBox("Phone", "phone", formattedPhone)}
-        {inputBox("House No", "house_no", user.house_no)}
-        {inputBox("Street", "street", user.street)}
-        {inputBox("Landmark", "landmark", user.landmark)}
-        {inputBox("City", "city", user.city)}
-        {inputBox("State", "state", user.state)}
-        {inputBox("Country", "country", user.country)}
-        {inputBox("Pincode", "pincode", user.pincode)}
-      </div>
-
-      <div className="flex justify-between px-8 pb-8 mt-4 w-full">
-        {editMode ? (
-          <div className="flex justify-end w-full">
-            <button
-              onClick={handleSave}
-              disabled={false}
-              className={`w-[30%] py-3 text-lg font-semibold ${
-                emailChanged
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-green-600 hover:bg-green-700"
-              } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
-            >
-              {emailChanged ? "Save & Verify Email" : "Save Changes"}
-            </button>
+      {showChangePassword ? (
+        <div className="px-8 pb-8">
+          <ChangePassword
+            role="customer"
+            onClose={() => setShowChangePassword(false)}
+          />
+        </div>
+      ) : (
+        <>
+          <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
+            {inputBox("First Name", "first_name", user.first_name)}
+            {inputBox("Middle Name", "middle_name", user.middle_name || "")}
+            {inputBox("Last Name", "last_name", user.last_name || "")}
+            {inputBox("Username", "username", user.username)}
+            {inputBox("Email", "email", user.email)}
+            {inputBox("Phone", "phone", formattedPhone)}
+            {inputBox("House No", "house_no", user.house_no)}
+            {inputBox("Street", "street", user.street)}
+            {inputBox("Landmark", "landmark", user.landmark)}
+            {inputBox("City", "city", user.city)}
+            {inputBox("State", "state", user.state)}
+            {inputBox("Country", "country", user.country)}
+            {inputBox("Pincode", "pincode", user.pincode)}
           </div>
-        ) : (
-          <>
-            <button
-              onClick={() => setEditMode(true)}
-              className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiEdit className="text-xl" />
-              Edit Details
-            </button>
 
-            <button
-              onClick={() => alert("Change Password")}
-              className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <PiLockKeyLight className="text-xl" />
-              Change Password
-            </button>
+          <div className="flex justify-between px-8 pb-8 mt-4 w-full">
+            {editMode ? (
+              <div className="flex justify-end w-full">
+                <button
+                  onClick={handleSave}
+                  disabled={false}
+                  className={`w-[30%] py-3 text-lg font-semibold ${
+                    emailChanged
+                      ? "bg-yellow-500 hover:bg-yellow-600"
+                      : "bg-green-600 hover:bg-green-700"
+                  } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
+                >
+                  {emailChanged ? "Save & Verify Email" : "Save Changes"}
+                </button>
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={() => setEditMode(true)}
+                  className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <FiEdit className="text-xl" />
+                  Edit Details
+                </button>
 
-            <button
-              onClick={() => alert("Delete Account")}
-              className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiTrash2 className="text-xl" />
-              Delete Account
-            </button>
-          </>
-        )}
-      </div>
+                <button
+                  onClick={() => setShowChangePassword(true)}
+                  className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <PiLockKeyLight className="text-xl" />
+                  Change Password
+                </button>
+
+                <button
+                  onClick={() => alert("Delete Account")}
+                  className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                >
+                  <FiTrash2 className="text-xl" />
+                  Delete Account
+                </button>
+              </>
+            )}
+          </div>
+        </>
+      )}
     </motion.div>
   );
 };

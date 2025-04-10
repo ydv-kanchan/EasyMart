@@ -11,6 +11,7 @@ const logoutRoute = require("./routes/logout");
 const profileRoutes = require("./routes/profile");
 const vendorProductRouter = require("./routes/vendorProducts");
 const forgetPasswordRoutes = require("./routes/forgotPassword");
+const changePasswordRoute = require("./routes/changePassword");
 
 const app = express();
 require("dotenv").config();
@@ -35,6 +36,7 @@ app.use("/", logoutRoute);
 app.use("/api/profile", profileRoutes);
 app.use("/api/vendorProducts", vendorProductRouter);
 app.use("/api", forgetPasswordRoutes);
+app.use("/api/", changePasswordRoute);
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
