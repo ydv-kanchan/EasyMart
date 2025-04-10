@@ -129,7 +129,7 @@ router.get("/my-products", validateToken, (req, res) => {
   const vendorId = req.vendor.vendor_id;
 
   const sql = `
-    SELECT i.item_id, i.item_name, i.item_desc, i.item_price, i.item_image, 
+    SELECT i.item_id, i.item_name, i.item_desc, i.item_price, i.item_image, i.item_stock, 
            c.category_name, t.item_type_name
     FROM items i
     JOIN categories c ON i.category_id = c.category_id
@@ -146,5 +146,68 @@ router.get("/my-products", validateToken, (req, res) => {
     res.status(200).json({ products: results });
   });
 });
+
+
+// PUT: Update product
+router.put(
+  "/edit-product/:id",
+  validateToken,
+  upload.single("image"),
+  (req, res) => {
+    const productId = req.params.id;
+    const { name, description, price, quantity } = req.body;
+    const vendorId = req.vendor.vendor_id;
+
+    let updateFields = `item_name = ?, item_desc = ?, item_price = ?, item_stock = ?`;
+    let params = [name, description, price, quantity];
+
+    // If a new image is uploaded, include it in the update
+    if (req.file) {
+      const imagePath = `/uploads/products/${req.file.filename}`;
+      updateFields += `, item_image = ?`;
+      params.push(imagePath);
+    }
+
+    // WHERE conditions
+    const sql = `
+      UPDATE items
+      SET ${updateFields}
+      WHERE item_id = ? AND vendor_id = ?
+    `;
+    params.push(productId, vendorId);
+
+    db.query(sql, params, (err, result) => {
+      if (err) {
+        console.error("Error updating product:", err);
+        return res
+          .status(500)
+          .json({ message: "Failed to update product", error: err });
+      }
+
+      res.status(200).json({ message: "Product updated successfully" });
+    });
+  }
+);
+
+router.delete("/delete-product/:id", validateToken, (req, res) => {
+  const productId = req.params.id;
+  const vendorId = req.vendor.vendor_id;
+
+  const sql = `DELETE FROM items WHERE item_id = ? AND vendor_id = ?`;
+
+  db.query(sql, [productId, vendorId], (err, result) => {
+    if (err) {
+      console.error("Error deleting product:", err);
+      return res.status(500).json({ message: "Database error", error: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Product not found or unauthorized" });
+    }
+
+    res.status(200).json({ message: "Product deleted successfully" });
+  });
+});
+
 
 module.exports = router;
