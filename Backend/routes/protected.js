@@ -1,11 +1,10 @@
 const express = require("express");
 const authenticateToken = require("../middleware/authenticateToken");
-const User = require("../config/db"); 
+const User = require("../config/db");
 
 const router = express.Router();
 
-router.get("/home", authenticateToken, async (req, res) => {
-
+router.get("/home", authenticateToken("customer"), async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     console.log("✅ User Found:", user);

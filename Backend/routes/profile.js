@@ -21,106 +21,110 @@ const transporter = nodemailer.createTransport({
 });
 
 // ========== UPDATE Customer Profile ==========
-router.put("/customer/update", authenticateToken, async (req, res) => {
-  const {
-    first_name,
-    middle_name,
-    last_name,
-    email,
-    phone,
-    house_no,
-    street,
-    landmark,
-    city,
-    state,
-    country,
-    pincode,
-  } = req.body;
+router.put(
+  "/customer/update",
+  authenticateToken("customer"),
+  async (req, res) => {
+    const {
+      first_name,
+      middle_name,
+      last_name,
+      email,
+      phone,
+      house_no,
+      street,
+      landmark,
+      city,
+      state,
+      country,
+      pincode,
+    } = req.body;
 
-  const userId = req.user.id;
+    const userId = req.user.id;
 
-  const getEmailQuery = "SELECT email FROM customers WHERE id = ?";
-  db.query(getEmailQuery, [userId], async (err, results) => {
-    if (err || results.length === 0) {
-      console.error("Error fetching email:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
+    const getEmailQuery = "SELECT email FROM customers WHERE id = ?";
+    db.query(getEmailQuery, [userId], async (err, results) => {
+      if (err || results.length === 0) {
+        console.error("Error fetching email:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
 
-    const currentEmail = results[0].email;
+      const currentEmail = results[0].email;
 
-    const updateQuery = `
+      const updateQuery = `
       UPDATE customers SET first_name=?, middle_name=?, last_name=?, phone=?, 
       house_no=?, street=?, landmark=?, city=?, state=?, country=?, pincode=? 
       WHERE id=?`;
 
-    db.query(
-      updateQuery,
-      [
-        first_name,
-        middle_name || null,
-        last_name || null,
-        phone,
-        house_no,
-        street || null,
-        landmark,
-        city,
-        state,
-        country,
-        pincode,
-        userId,
-      ],
-      async (err) => {
-        if (err) {
-          console.error("Error updating profile:", err);
-          return res.status(500).json({ error: "Profile update failed" });
-        }
-
-        if (email !== currentEmail) {
-          const token = jwt.sign(
-            { user_id: userId, email, type: "add" },
-            JWT_SECRET,
-            { expiresIn: "1d" }
-          );
-
-          const verifyURL = `http://localhost:3000/api/profile/verify-email?token=${token}`;
-
-          try {
-            await transporter.sendMail({
-              from: `"EasyMart" <${EMAIL}>`,
-              to: email,
-              subject: "Verify Your New Email",
-              html: `<p>Click below to verify your new email address:</p><a href="${verifyURL}">Verify Email</a>`,
-            });
-
-            db.query(
-              "UPDATE customers SET is_verified = 0 WHERE id = ?",
-              [userId],
-              (err) => {
-                if (err) {
-                  console.error("Error setting verification flag:", err);
-                  return res.status(500).json({ error: "Flag update error" });
-                }
-
-                return res.status(200).json({
-                  requiresVerification: true,
-                  message:
-                    "Verification email sent to the new address. Please verify.",
-                });
-              }
-            );
-          } catch (mailErr) {
-            console.error("Email sending failed:", mailErr);
-            return res.status(500).json({ error: "Email sending failed" });
+      db.query(
+        updateQuery,
+        [
+          first_name,
+          middle_name || null,
+          last_name || null,
+          phone,
+          house_no,
+          street || null,
+          landmark,
+          city,
+          state,
+          country,
+          pincode,
+          userId,
+        ],
+        async (err) => {
+          if (err) {
+            console.error("Error updating profile:", err);
+            return res.status(500).json({ error: "Profile update failed" });
           }
-        } else {
-          return res
-            .status(200)
-            .json({ message: "Profile updated successfully." });
+
+          if (email !== currentEmail) {
+            const token = jwt.sign(
+              { user_id: userId, email, type: "add" },
+              JWT_SECRET,
+              { expiresIn: "1d" }
+            );
+
+            const verifyURL = `http://localhost:3000/api/profile/verify-email?token=${token}`;
+
+            try {
+              await transporter.sendMail({
+                from: `"EasyMart" <${EMAIL}>`,
+                to: email,
+                subject: "Verify Your New Email",
+                html: `<p>Click below to verify your new email address:</p><a href="${verifyURL}">Verify Email</a>`,
+              });
+
+              db.query(
+                "UPDATE customers SET is_verified = 0 WHERE id = ?",
+                [userId],
+                (err) => {
+                  if (err) {
+                    console.error("Error setting verification flag:", err);
+                    return res.status(500).json({ error: "Flag update error" });
+                  }
+
+                  return res.status(200).json({
+                    requiresVerification: true,
+                    message:
+                      "Verification email sent to the new address. Please verify.",
+                  });
+                }
+              );
+            } catch (mailErr) {
+              console.error("Email sending failed:", mailErr);
+              return res.status(500).json({ error: "Email sending failed" });
+            }
+          } else {
+            return res
+              .status(200)
+              .json({ message: "Profile updated successfully." });
+          }
         }
-      }
-    );
-  });
-});
+      );
+    });
+  }
+);
 
 // ========== VERIFY EMAIL ==========
 // ========== VERIFY EMAIL ==========
@@ -154,12 +158,12 @@ router.get("/verify-email", (req, res) => {
               </div>
             `);
           }
-
-          // Optionally, set new token as cookie (not required for email-only verify)
           const newToken = jwt.sign(
-            { id: user_id, email, role: "customer" },
+            { id: user_id, role: "customer" },
             JWT_SECRET,
-            { expiresIn: "7d" }
+            {
+              expiresIn: "1d",
+            }
           );
 
           res.cookie("customer_token", newToken, {
@@ -189,7 +193,7 @@ router.get("/verify-email", (req, res) => {
 });
 
 // ========== FETCH Customer Profile ==========
-router.get("/customer", authenticateToken, (req, res) => {
+router.get("/customer", authenticateToken("customer"), (req, res) => {
   const { role, id } = req.user;
   if (role !== "customer") {
     return res.status(403).json({ message: "Unauthorized role" });
@@ -211,7 +215,7 @@ router.get("/customer", authenticateToken, (req, res) => {
 });
 
 // ========== FETCH Vendor Profile ==========
-router.get("/vendor", authenticateToken, (req, res) => {
+router.get("/vendor", authenticateToken("vendor"), (req, res) => {
   const { role, id } = req.user;
 
   if (role !== "vendor") {
