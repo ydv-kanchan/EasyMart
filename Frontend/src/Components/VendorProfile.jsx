@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { FiHome, FiUser, FiBox, FiClipboard, FiLogOut } from "react-icons/fi";
 import VendorProfileDetails from "./VendorProfileDetails"; // UI-only profile details
+import Dashboard from "./Dashboard";
+import MyProducts from "./MyProducts";
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button
@@ -25,11 +27,8 @@ const VendorProfile = () => {
     switch (selectedTab) {
       case "dashboard":
         return (
-          <div className="p-6 w-full">
-            <h2 className="text-2xl font-bold text-gray-800">Dashboard</h2>
-            <p className="text-gray-600 mt-2">
-              Welcome to your vendor dashboard!
-            </p>
+          <div className=" w-full">
+            <Dashboard />
           </div>
         );
       case "profile":
@@ -40,11 +39,8 @@ const VendorProfile = () => {
         );
       case "products":
         return (
-          <div className="p-6 w-full">
-            <h2 className="text-2xl font-bold text-gray-800">My Products</h2>
-            <p className="text-gray-600 mt-2">
-              Here you can manage and update your listed products.
-            </p>
+          <div className="p-4 w-full">
+            <MyProducts />
           </div>
         );
       case "orders":
