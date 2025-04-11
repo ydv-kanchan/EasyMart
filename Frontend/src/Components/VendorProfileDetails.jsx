@@ -3,11 +3,13 @@ import { motion } from "framer-motion";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { PiLockKeyLight } from "react-icons/pi";
 import axios from "axios";
+import ChangePassword from "./ChangePassword";
 
 const VendorProfileDetails = () => {
   const [editMode, setEditMode] = useState(false);
   const [emailChanged, setEmailChanged] = useState(false);
   const [originalEmail, setOriginalEmail] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [formData, setFormData] = useState({
     first_name: "",
     middle_name: "",
@@ -70,6 +72,26 @@ const VendorProfileDetails = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete your account? This action cannot be undone."
+      )
+    )
+      return;
+
+    try {
+      await axios.delete("http://localhost:3000/api/profile/delete", {
+        withCredentials: true,
+      });
+
+      alert("Account deleted successfully.");
+      window.location.href = "/"; // or redirect to login/home
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+      alert("Error deleting account. Please try again later.");
+    }
+  };
 
   const inputBox = (label, name, value) => (
     <div className="flex flex-col gap-1 w-full">
@@ -126,44 +148,58 @@ const VendorProfileDetails = () => {
       </div>
 
       <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">
-        {editMode ? (
-          <div className="flex justify-end w-full">
-            <button
-              onClick={handleSave}
-              className={`w-[30%] py-3 text-lg font-semibold ${
-                emailChanged
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-green-600 hover:bg-green-700"
-              } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
-            >
-              {emailChanged ? "Save & Verify Email" : "Save Changes"}
-            </button>
+        {showChangePassword ? (
+          <div className="px-8 pb-8">
+            <ChangePassword
+              role="vendor"
+              onClose={() => setShowChangePassword(false)}
+            />
           </div>
         ) : (
           <>
-            <button
-              onClick={() => setEditMode(true)}
-              className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiEdit className="text-xl" />
-              Edit Details
-            </button>
+            {/* existing profile fields */}
+            <div className="flex justify-between px-8 pb-8 mt-4 w-full">
+              {editMode ? (
+                <div className="flex justify-end w-full">
+                  <button
+                    onClick={handleSave}
+                    className={`w-[30%] py-3 text-lg font-semibold ${
+                      emailChanged
+                        ? "bg-yellow-500 hover:bg-yellow-600"
+                        : "bg-green-600 hover:bg-green-700"
+                    } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
+                  >
+                    {emailChanged ? "Save & Verify Email" : "Save Changes"}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <FiEdit className="text-xl" />
+                    Edit Details
+                  </button>
 
-            <button
-              onClick={() => alert("Change Password")}
-              className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <PiLockKeyLight className="text-xl" />
-              Change Password
-            </button>
+                  <button
+                    onClick={() => setShowChangePassword(true)}
+                    className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <PiLockKeyLight className="text-xl" />
+                    Change Password
+                  </button>
 
-            <button
-              onClick={() => alert("Delete Account")}
-              className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiTrash2 className="text-xl" />
-              Delete Account
-            </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <FiTrash2 className="text-xl" />
+                    Delete Account
+                  </button>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>

@@ -3,22 +3,19 @@ const router = express.Router();
 const db = require("../config/db");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
 require("dotenv").config();
 
 // POST /api/change-password/:role
 router.post("/change-password/:role", async (req, res) => {
-  const role = req.params.role;
+  const { role } = req.params;
+  const { currentPassword, newPassword } = req.body;
 
-  // ✅ Use correct cookie based on role
   const token =
     role === "customer"
       ? req.cookies.customer_token
       : role === "vendor"
       ? req.cookies.vendor_token
       : null;
-
-  const { currentPassword, newPassword } = req.body;
 
   if (!token) {
     return res.status(401).json({ error: "Authorization token missing." });
@@ -28,58 +25,59 @@ router.post("/change-password/:role", async (req, res) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    console.log("User ID from token:", userId);
-
-    let table, idColumn;
+    let tableName, idColumn;
     if (role === "customer") {
-      table = "customers";
+      tableName = "customers";
       idColumn = "id";
     } else if (role === "vendor") {
-      table = "vendors";
+      tableName = "vendors";
       idColumn = "vendor_id";
     } else {
-      return res.status(400).json({ error: "Invalid user role." });
+      return res.status(400).json({ error: "Invalid role provided." });
     }
 
+    // Step 1: Fetch current hashed password
     db.query(
-      `SELECT password FROM ${table} WHERE ${idColumn} = ?`,
+      `SELECT password FROM ${tableName} WHERE ${idColumn} = ?`,
       [userId],
-      async (err, result) => {
+      async (err, results) => {
         if (err) {
-          console.error("DB SELECT error:", err);
+          console.error("Error fetching password from DB:", err);
           return res.status(500).json({ error: "Database error." });
         }
 
-        if (result.length === 0) {
+        if (results.length === 0) {
           return res.status(404).json({ error: "User not found." });
         }
 
-        const hashedPassword = result[0].password;
-        console.log("Password from DB:", hashedPassword);
+        const storedHashedPassword = results[0].password;
 
-        const isMatch = await bcrypt.compare(currentPassword, hashedPassword);
+        // Step 2: Compare current password
+        const isMatch = await bcrypt.compare(
+          currentPassword,
+          storedHashedPassword
+        );
         if (!isMatch) {
-          console.warn("Incorrect current password");
           return res
             .status(400)
             .json({ error: "Current password is incorrect." });
         }
 
+        // Step 3: Hash new password and update
         const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
         db.query(
-          `UPDATE ${table} SET password = ? WHERE ${idColumn} = ?`,
+          `UPDATE ${tableName} SET password = ? WHERE ${idColumn} = ?`,
           [newHashedPassword, userId],
-          (err, result) => {
+          (err, updateResult) => {
             if (err) {
-              console.error("DB UPDATE error:", err);
+              console.error("Error updating password in DB:", err);
               return res
                 .status(500)
                 .json({ error: "Failed to update password." });
             }
 
-            console.log("Password updated successfully");
-            res.json({ message: "Password updated successfully!" });
+            return res.json({ message: "Password updated successfully!" });
           }
         );
       }

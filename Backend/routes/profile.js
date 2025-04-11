@@ -298,4 +298,80 @@ router.put("/vendor/update", authenticateToken("vendor"), (req, res) => {
 });
 
 
+router.delete("/delete", async (req, res, next) => {
+  // Check for vendor or customer token
+  const vendorAuth = authenticateToken("vendor");
+  const customerAuth = authenticateToken("customer");
+
+  // Run both middlewares, whichever matches will proceed
+  vendorAuth(req, res, (err) => {
+    if (!err) return deleteAccount(req, res, "vendor");
+    customerAuth(req, res, (err) => {
+      if (!err) return deleteAccount(req, res, "customer");
+      return res
+        .status(401)
+        .json({ message: "Unauthorized. Token not valid." });
+    });
+  });
+});
+
+// 🔁 Reusable deletion logic
+router.delete("/delete", (req, res) => {
+  const vendorToken = req.cookies.vendor_token;
+  const customerToken = req.cookies.customer_token;
+
+  let token = null;
+  let role = null;
+
+  // ✅ Determine which token exists
+  if (vendorToken) {
+    token = vendorToken;
+    role = "vendor";
+  } else if (customerToken) {
+    token = customerToken;
+    role = "customer";
+  } else {
+    return res.status(401).json({ message: "Unauthorized: No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const userId = decoded.id;
+
+    // ✅ Choose table and column based on role
+    const table = role === "vendor" ? "vendors" : "customers";
+    const column = role === "vendor" ? "vendor_id" : "id";
+
+    db.query(
+      `DELETE FROM ${table} WHERE ${column} = ?`,
+      [userId],
+      (err, result) => {
+        if (err) {
+          console.error("Error deleting account:", err);
+          return res
+            .status(500)
+            .json({
+              message: "Error deleting account. Please try again later.",
+            });
+        }
+
+        // ✅ Clear correct token after deletion
+        const cookieName =
+          role === "vendor" ? "vendor_token" : "customer_token";
+        res.clearCookie(cookieName);
+
+        return res
+          .status(200)
+          .json({ message: `${role} account deleted successfully` });
+      }
+    );
+  } catch (err) {
+    console.error("Token verification failed:", err);
+    return res
+      .status(401)
+      .json({ message: "Unauthorized: Invalid or expired token" });
+  }
+});
+
+
 module.exports = router;
