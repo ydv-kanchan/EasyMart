@@ -126,14 +126,11 @@ router.put(
   }
 );
 
-// ========== VERIFY EMAIL ==========
-// ========== VERIFY EMAIL ==========
 router.get("/verify-email", (req, res) => {
-  const { token } = req.query;
+  const token = req.query.token || req.query.vendor_token;
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
     if (err) {
-      console.error("Token error:", err);
       return res.status(400).send(`
         <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
           <h1 style="color: red;">❌ Verification Failed</h1>
@@ -142,55 +139,53 @@ router.get("/verify-email", (req, res) => {
       `);
     }
 
-    const { user_id, email, type } = decoded;
+    const { user_id, vendor_id, email, type } = decoded;
 
     if (type === "add") {
       db.query(
         "UPDATE customers SET email = ?, is_verified = 1 WHERE id = ?",
         [email, user_id],
         (err) => {
-          if (err) {
-            console.error("DB error during email update:", err);
-            return res.status(500).send(`
-              <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
-                <h1 style="color: red;">❌ Internal Error</h1>
-                <p>Something went wrong. Please try again later.</p>
-              </div>
-            `);
-          }
-          const newToken = jwt.sign(
+          if (err) return res.status(500).send("Internal DB error");
+          const token = jwt.sign(
             { id: user_id, role: "customer" },
             JWT_SECRET,
-            {
-              expiresIn: "1d",
-            }
+            { expiresIn: "1d" }
           );
-
-          res.cookie("customer_token", newToken, {
-            httpOnly: true,
-            secure: false,
-            sameSite: "Lax",
-          });
-
-          // ✅ SUCCESS MESSAGE INSTEAD OF REDIRECT
-          res.send(`
-            <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
-              <h1 style="color: green;">✅ Email Verified Successfully!</h1>
-              <p>You can now close this window and continue using EasyMart.</p>
-            </div>
-          `);
+          res.cookie("customer_token", token, { httpOnly: true });
+          return res.send(successHTML("Customer"));
+        }
+      );
+    } else if (type === "vendor_add") {
+      db.query(
+        "UPDATE vendors SET email = ? WHERE vendor_id = ?",
+        [email, vendor_id],
+        (err) => {
+          if (err) return res.status(500).send("Internal DB error");
+          const token = jwt.sign(
+            { id: vendor_id, role: "vendor" },
+            JWT_SECRET,
+            { expiresIn: "1d" }
+          );
+          res.cookie("vendor_token", token, { httpOnly: true });
+          return res.send(successHTML("Vendor"));
         }
       );
     } else {
-      return res.status(400).send(`
-        <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
-          <h1 style="color: red;">❌ Invalid Token Type</h1>
-          <p>Unable to verify email. Please contact support.</p>
-        </div>
-      `);
+      return res.status(400).send("Invalid token type.");
     }
   });
+
+  function successHTML(role) {
+    return `
+      <div style="font-family: sans-serif; text-align: center; margin-top: 100px;">
+        <h1 style="color: green;">✅ ${role} Email Verified!</h1>
+        <p>You can now close this window and continue using EasyMart.</p>
+      </div>
+    `;
+  }
 });
+
 
 // ========== FETCH Customer Profile ==========
 router.get("/customer", authenticateToken("customer"), (req, res) => {
@@ -235,5 +230,72 @@ router.get("/vendor", authenticateToken("vendor"), (req, res) => {
     res.json(results[0]);
   });
 });
+
+router.put("/vendor/update", authenticateToken("vendor"), (req, res) => {
+  const vendorId = req.user.id;
+  const { first_name, middle_name, last_name, phone, email, username } =
+    req.body;
+
+  const getEmailQuery = "SELECT email FROM vendors WHERE vendor_id = ?";
+  db.query(getEmailQuery, [vendorId], async (err, results) => {
+    if (err || results.length === 0) {
+      console.error("Error fetching vendor email:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const currentEmail = results[0].email;
+
+    const updateQuery = `
+      UPDATE vendors SET first_name = ?, middle_name = ?, last_name = ?, phone = ?, username = ?
+      WHERE vendor_id = ?
+    `;
+
+    db.query(
+      updateQuery,
+      [first_name, middle_name, last_name, phone, username, vendorId],
+      async (err) => {
+        if (err) {
+          console.error("Vendor profile update error:", err);
+          return res.status(500).json({ error: "Internal error" });
+        }
+
+        if (email !== currentEmail) {
+          const token = jwt.sign(
+            { vendor_id: vendorId, email, type: "vendor_add" },
+            JWT_SECRET,
+            { expiresIn: "1d" }
+          );
+
+          const verifyURL = `http://localhost:3000/api/profile/verify-email?vendor_token=${token}`;
+
+          try {
+            await transporter.sendMail({
+              from: `"EasyMart" <${EMAIL}>`,
+              to: email,
+              subject: "Verify Your New Email (Vendor)",
+              html: `<p>Click below to verify your new email address:</p><a href="${verifyURL}">Verify Email</a>`,
+            });
+
+            return res.status(200).json({
+              requiresVerification: true,
+              message:
+                "Verification email sent to the new address. Please verify.",
+            });
+          } catch (mailErr) {
+            console.error("Email sending failed:", mailErr);
+            return res
+              .status(500)
+              .json({ error: "Failed to send verification email" });
+          }
+        } else {
+          return res
+            .status(200)
+            .json({ message: "Profile updated successfully." });
+        }
+      }
+    );
+  });
+});
+
 
 module.exports = router;

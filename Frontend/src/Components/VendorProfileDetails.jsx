@@ -45,6 +45,32 @@ const VendorProfileDetails = () => {
     }
   };
 
+  const handleSave = async () => {
+    try {
+      const res = await axios.put(
+        "http://localhost:3000/api/profile/vendor/update",
+        formData,
+        { withCredentials: true }
+      );
+
+      alert(res.data.message);
+
+      if (res.data.requiresVerification) {
+        // Don't update originalEmail until verification is done
+        return;
+      } else {
+        setOriginalEmail(formData.email);
+      }
+
+      setEditMode(false);
+      setEmailChanged(false);
+    } catch (err) {
+      console.error("Error updating vendor profile:", err);
+      alert("Failed to update profile. Please try again.");
+    }
+  };
+
+
   const inputBox = (label, name, value) => (
     <div className="flex flex-col gap-1 w-full">
       <div
@@ -103,10 +129,7 @@ const VendorProfileDetails = () => {
         {editMode ? (
           <div className="flex justify-end w-full">
             <button
-              onClick={() => {
-                alert("Changes saved (UI only)");
-                setEditMode(false);
-              }}
+              onClick={handleSave}
               className={`w-[30%] py-3 text-lg font-semibold ${
                 emailChanged
                   ? "bg-yellow-500 hover:bg-yellow-600"
