@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import { FiPlus } from "react-icons/fi";
 import VendorProductProfile from "./VendorProductProfile";
 
 const VendorProductList = () => {
@@ -12,11 +13,13 @@ const VendorProductList = () => {
 
   const fetchProducts = async () => {
     const token = localStorage.getItem("token");
-
     try {
-      const res = await axios.get("http://localhost:3000/api/vendorProducts/my-products", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(
+        "http://localhost:3000/api/vendorProducts/my-products",
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       setProducts(res.data.products);
       setLoading(false);
     } catch (err) {
@@ -53,182 +56,75 @@ const VendorProductList = () => {
   const handleModalClose = () => {
     setSelectedProduct(null);
     setShowModal(false);
-    fetchProducts(); // Refresh product list after edit
+    fetchProducts();
   };
 
-  if (loading) return <p>Loading products...</p>;
-  if (error) return <p>Error loading products: {error.message}</p>;
+  if (loading) return <p className="text-center py-10">Loading products...</p>;
+  if (error) return <p className="text-center text-red-600 py-10">Error loading products: {error.message}</p>;
 
   return (
-    <div style={styles.outerContainer}>
+    <div className="min-h-screen bg-gray-50 p-6">
       {showModal && (
-        <div style={styles.backdrop}>
+        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-center z-50">
           <VendorProductProfile product={selectedProduct} onClose={handleModalClose} />
         </div>
       )}
-      <div style={styles.app}>
-        <h2 className="text-4xl font-extrabold text-center text-gray-800 mb-6">My Products</h2>
-        {products.length === 0 ? (
-          <div style={styles.emptyMessageContainer}>
-            <p style={styles.emptyMessageText}>You haven’t added any products yet.</p>
-            <p>Start listing items and grow your store!</p>
-            <button
-              style={styles.addButton}
-              onClick={() => window.location.href = "/add-product"}
-            >
-              Add a Product
-            </button>
-          </div>
-        ) : (
-          <div style={styles.productGrid}>
-            {products.map((product) => (
-              <div key={product.item_id} style={styles.productCard}>
-                <img
-                  src={`http://localhost:3000${product.item_image}`}
-                  alt={product.item_name}
-                  style={styles.productImage}
-                />
-                <h3 style={styles.productBrand}>{product.category_name}</h3>
-                <p style={styles.productName}>{product.item_name}</p>
-                <p style={styles.itemType}>Type: {product.item_type_name}</p>
-                <div style={styles.price}>₹ {product.item_price}</div>
-                <div style={styles.stock}>Stock: {product.item_stock}</div>
-                <div style={styles.iconWrapper}>
-                  <FaEdit
-                    style={styles.icon}
-                    onClick={() => handleEditClick(product)}
-                    title="Edit"
-                  />
-                  <FaTrash
-                    style={{ ...styles.icon, color: "#c0392b" }}
-                    onClick={() => handleDeleteClick(product.item_id)}
-                    title="Delete"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">My Products</h2>
+        <button
+          onClick={() => window.location.href = "/add-product"}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl shadow hover:bg-blue-700 transition-all"
+        >
+          <FiPlus className="text-lg" />
+          Add Product
+        </button>
       </div>
+
+      {/* Product Grid */}
+      {products.length === 0 ? (
+        <div className="text-center mt-40">
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">You haven't added any products yet.</h3>
+          <p className="text-gray-500">Start listing items and grow your store!</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <div
+              key={product.item_id}
+              className="relative bg-white border rounded-2xl p-4 shadow hover:shadow-md transition w-full"
+            >
+              <img
+                src={`http://localhost:3000${product.item_image}`}
+                alt={product.item_name}
+                className="w-full h-64 object-cover rounded-xl mb-3"
+              />
+              {/* <h3 className="text-sm font-semibold text-gray-600 mb-1">{product.category_name}</h3> */}
+              <p className="text-lg font-bold text-gray-800">{product.item_name}</p>
+              {/* <p className="text-sm text-gray-500 mb-1">Type: {product.item_type_name}</p> */}
+              <p className="text-md font-semibold text-gray-700 mb-1">₹ {product.item_price}</p>
+              {/* <p className="text-sm text-blue-700 font-medium">Stock: {product.item_stock}</p> */}
+
+              {/* Icons */}
+              <div className="absolute top-3 right-3 flex gap-3">
+                <FaEdit
+                  className="text-gray-500 hover:text-blue-600 cursor-pointer"
+                  onClick={() => handleEditClick(product)}
+                  title="Edit"
+                />
+                <FaTrash
+                  className="text-red-500 hover:text-red-700 cursor-pointer"
+                  onClick={() => handleDeleteClick(product.item_id)}
+                  title="Delete"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-const styles = {
-  outerContainer: {
-    backgroundColor: "#f9f9f9",
-    minHeight: "100vh",
-  },
-  app: {
-    fontFamily: "Arial, sans-serif",
-    padding: "20px",
-    width: "85%",
-    margin: "0 auto",
-  },
-  title: {
-    fontSize: "32px",
-    textAlign: "center",
-    marginTop: "30px",
-    color: "#333",
-  },
-  productGrid: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: "30px",
-    marginTop: "20px",
-  },
-  productCard: {
-    width: "280px",
-    backgroundColor: "#fff",
-    border: "1px solid #e0e0e0",
-    textAlign: "center",
-    padding: "20px",
-    height: "360px",
-    position: "relative",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    borderRadius: "8px",
-  },
-  productImage: {
-    width: "100%",
-    height: "160px",
-    objectFit: "contain",
-    borderRadius: "8px",
-    marginBottom: "10px",
-  },
-  productBrand: {
-    fontSize: "15px",
-    margin: "5px 0",
-    color: "#444",
-  },
-  productName: {
-    fontSize: "16px",
-    color: "black",
-    fontWeight: "bold",
-    margin: "5px 0",
-  },
-  itemType: {
-    fontSize: "14px",
-    color: "#777",
-    margin: "5px 0",
-  },
-  price: {
-    fontSize: "16px",
-    fontWeight: "bold",
-    color: "#444",
-    marginBottom: "4px",
-  },
-  stock: {
-    fontSize: "14px",
-    color: "#2c3e50",
-    fontWeight: "500",
-    marginBottom: "10px",
-  },
-  iconWrapper: {
-    position: "absolute",
-    top: "10px",
-    right: "10px",
-    display: "flex",
-    gap: "10px",
-  },
-  icon: {
-    cursor: "pointer",
-    color:"#6b7280",
-    fontSize: "15px",
-  },
-  backdrop: {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "rgba(0,0,0,0.4)",
-    backdropFilter: "blur(5px)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    zIndex: 1000,
-  },
-  emptyMessageContainer: {
-    textAlign: "center",
-    marginTop: "250px",
-  },
-  emptyMessageText: {
-    fontSize: "26px",
-    color: "#555",
-    fontWeight: "bold",
-    marginBottom: "20px",
-  },
-  addButton: {
-    padding: "15px 30px",
-    backgroundColor: "#60a5fa",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-    borderRadius: "5px",
-    fontSize: "18px",
-    marginTop: "20px",
-  },
 };
 
 export default VendorProductList;
