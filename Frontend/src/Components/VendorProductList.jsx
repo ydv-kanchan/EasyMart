@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaEdit, FaTrash } from "react-icons/fa";
-import { FiPlus } from "react-icons/fi";
+import { FiEdit, FiPlus } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
 import VendorProductProfile from "./VendorProductProfile";
 
 const VendorProductList = () => {
@@ -20,6 +20,7 @@ const VendorProductList = () => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+      console.log("Fetched products:", res.data.products);
       setProducts(res.data.products);
       setLoading(false);
     } catch (err) {
@@ -59,6 +60,26 @@ const VendorProductList = () => {
     fetchProducts();
   };
 
+  const formatTitle = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+
+  // Grouping by category_name and item_type_name
+  const groupedProducts = products.reduce((acc, product) => {
+    const category = product.category_name?.trim() || "Uncategorized";
+    const itemType = product.item_type_name?.trim() || "Unspecified";
+
+    if (!acc[category]) {
+      acc[category] = {};
+    }
+
+    if (!acc[category][itemType]) {
+      acc[category][itemType] = [];
+    }
+
+    acc[category][itemType].push(product);
+
+    return acc;
+  }, {});
+
   if (loading) return <p className="text-center py-10">Loading products...</p>;
   if (error) return <p className="text-center text-red-600 py-10">Error loading products: {error.message}</p>;
 
@@ -82,46 +103,60 @@ const VendorProductList = () => {
         </button>
       </div>
 
-      {/* Product Grid */}
-      {products.length === 0 ? (
+      {/* Grouped Product Display */}
+      {Object.keys(groupedProducts).length === 0 ? (
         <div className="text-center mt-40">
           <h3 className="text-xl font-semibold text-gray-600 mb-2">You haven't added any products yet.</h3>
           <p className="text-gray-500">Start listing items and grow your store!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.item_id}
-              className="relative bg-white border rounded-2xl p-4 shadow hover:shadow-md transition w-full"
-            >
-              <img
-                src={`http://localhost:3000${product.item_image}`}
-                alt={product.item_name}
-                className="w-full h-64 object-cover rounded-xl mb-3"
-              />
-              {/* <h3 className="text-sm font-semibold text-gray-600 mb-1">{product.category_name}</h3> */}
-              <p className="text-lg font-bold text-gray-800">{product.item_name}</p>
-              {/* <p className="text-sm text-gray-500 mb-1">Type: {product.item_type_name}</p> */}
-              <p className="text-md font-semibold text-gray-700 mb-1">₹ {product.item_price}</p>
-              {/* <p className="text-sm text-blue-700 font-medium">Stock: {product.item_stock}</p> */}
+        Object.entries(groupedProducts).map(([category, itemTypes]) => (
+          <div key={category} className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{formatTitle(category)}</h2>
 
-              {/* Icons */}
-              <div className="absolute top-3 right-3 flex gap-3">
-                <FaEdit
-                  className="text-gray-500 hover:text-blue-600 cursor-pointer"
-                  onClick={() => handleEditClick(product)}
-                  title="Edit"
-                />
-                <FaTrash
-                  className="text-red-500 hover:text-red-700 cursor-pointer"
-                  onClick={() => handleDeleteClick(product.item_id)}
-                  title="Delete"
-                />
+            {Object.entries(itemTypes).map(([itemType, productsInType]) => (
+              <div key={itemType} className="mb-8 pl-4 border-l-4 border-blue-600">
+                <h3 className="text-xl font-semibold text-blue-700 mb-3">{formatTitle(itemType)}</h3>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                  {productsInType.map((product) => (
+                    <div
+                      key={product.item_id}
+                      className="relative bg-white border rounded-2xl p-4 shadow hover:shadow-md transition w-full"
+                    >
+                      {/* Delete Icon */}
+                      <IoClose
+                        className="absolute top-3 right-3 text-red-600 hover:text-red-800 cursor-pointer text-xl"
+                        onClick={() => handleDeleteClick(product.item_id)}
+                        title="Delete"
+                      />
+
+                      {/* Product Image */}
+                      <img
+                        src={`http://localhost:3000${product.item_image}`}
+                        alt={product.item_name}
+                        className="w-full h-64 object-cover rounded-xl mb-3"
+                      />
+
+                      {/* Product Name + Edit Icon */}
+                      <div className="flex justify-between items-center mb-1">
+                        <p className="text-lg font-bold text-gray-800">{product.item_name}</p>
+                        <FiEdit
+                          className="text-gray-600 hover:text-blue-600 cursor-pointer text-lg"
+                          onClick={() => handleEditClick(product)}
+                          title="Edit"
+                        />
+                      </div>
+
+                      {/* Price */}
+                      <p className="text-md font-semibold text-gray-700 mb-1">₹ {product.item_price}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ))
       )}
     </div>
   );

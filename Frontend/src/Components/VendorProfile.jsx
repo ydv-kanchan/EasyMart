@@ -5,6 +5,7 @@ import { FiHome, FiUser, FiBox, FiClipboard, FiLogOut } from "react-icons/fi";
 import VendorProfileDetails from "./VendorProfileDetails"; // UI-only profile details
 import Dashboard from "./Dashboard";
 import MyProducts from "./MyProducts";
+import VendorProductList from "./VendorProductList";
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button
@@ -40,7 +41,7 @@ const VendorProfile = () => {
       case "products":
         return (
           <div className="p-4 w-full">
-            <MyProducts />
+            <VendorProductList />
           </div>
         );
       case "orders":
