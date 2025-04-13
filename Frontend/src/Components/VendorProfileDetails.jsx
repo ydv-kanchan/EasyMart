@@ -1,34 +1,100 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { PiLockKeyLight } from "react-icons/pi";
+import axios from "axios";
+import ChangePassword from "./ChangePassword";
 
 const VendorProfileDetails = () => {
   const [editMode, setEditMode] = useState(false);
   const [emailChanged, setEmailChanged] = useState(false);
+  const [originalEmail, setOriginalEmail] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: "John Doe",
-    email: "johndoe@example.com",
-    phone: "+91 9876543210",
-    shop_name: "Doe's Emporium",
-    city: "Ludhiana",
-    state: "Punjab",
-    country: "India",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    email: "",
+    username: "",
+    phone: "",
   });
+
+  useEffect(() => {
+    const fetchVendor = async () => {
+      try {
+        const res = await axios.get(
+          "http://localhost:3000/api/profile/vendor",
+          {
+            withCredentials: true,
+          }
+        );
+        setFormData(res.data);
+        setOriginalEmail(res.data.email);
+      } catch (err) {
+        console.error("Error fetching vendor profile:", err);
+      }
+    };
+
+    fetchVendor();
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "email" && value !== "johndoe@example.com") {
-      setEmailChanged(true);
-    } else if (name === "email") {
+    if (name === "email") {
+      setEmailChanged(value !== originalEmail);
+    }
+  };
+
+  const handleSave = async () => {
+    try {
+      const res = await axios.put(
+        "http://localhost:3000/api/profile/vendor/update",
+        formData,
+        { withCredentials: true }
+      );
+
+      alert(res.data.message);
+
+      if (res.data.requiresVerification) {
+        // Don't update originalEmail until verification is done
+        return;
+      } else {
+        setOriginalEmail(formData.email);
+      }
+
+      setEditMode(false);
       setEmailChanged(false);
+    } catch (err) {
+      console.error("Error updating vendor profile:", err);
+      alert("Failed to update profile. Please try again.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete your account? This action cannot be undone."
+      )
+    )
+      return;
+
+    try {
+      await axios.delete("http://localhost:3000/api/profile/delete", {
+        withCredentials: true,
+      });
+
+      alert("Account deleted successfully.");
+      window.location.href = "/"; // or redirect to login/home
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+      alert("Error deleting account. Please try again later.");
     }
   };
 
   const inputBox = (label, name, value) => (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1 w-full">
       <div
         className="bg-blue-50 shadow-sm px-4 py-3 border-b-2 border-blue-300 flex justify-between items-center w-full cursor-text"
         onClick={() => document.getElementById(name)?.focus()}
@@ -44,7 +110,7 @@ const VendorProfileDetails = () => {
             type="text"
             name={name}
             id={name}
-            value={formData[name] || ""}
+            value={value}
             onChange={handleChange}
             className="bg-transparent text-gray-500 w-full text-right outline-none cursor-text"
           />
@@ -66,58 +132,74 @@ const VendorProfileDetails = () => {
         Vendor Profile
       </h2>
 
-      <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
-        {inputBox("Full Name", "full_name", formData.full_name)}
-        {inputBox("Email", "email", formData.email)}
-        {inputBox("Phone", "phone", formData.phone)}
-        {inputBox("Shop Name", "shop_name", formData.shop_name)}
-        {inputBox("City", "city", formData.city)}
-        {inputBox("State", "state", formData.state)}
-        {inputBox("Country", "country", formData.country)}
+      <div className="flex-grow text-gray-800 text-[16px] px-8 pb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-6 mb-6">
+          {inputBox("First Name", "first_name", formData.first_name)}
+          {inputBox("Middle Name", "middle_name", formData.middle_name)}
+          {inputBox("Last Name", "last_name", formData.last_name)}
+        </div>
+
+        <div className="mb-6">{inputBox("Email", "email", formData.email)}</div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+          {inputBox("Username", "username", formData.username)}
+          {inputBox("Phone", "phone", formData.phone)}
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">
-        {editMode ? (
-          <div className="flex justify-end w-full">
-            <button
-              onClick={() => {
-                alert("Changes saved (UI only)");
-                setEditMode(false);
-              }}
-              className={`w-[30%] py-3 text-lg font-semibold ${
-                emailChanged
-                  ? "bg-yellow-500 hover:bg-yellow-600"
-                  : "bg-green-600 hover:bg-green-700"
-              } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
-            >
-              {emailChanged ? "Save & Verify Email" : "Save Changes"}
-            </button>
+        {showChangePassword ? (
+          <div className="px-8 pb-8">
+            <ChangePassword
+              role="vendor"
+              onClose={() => setShowChangePassword(false)}
+            />
           </div>
         ) : (
           <>
-            <button
-              onClick={() => setEditMode(true)}
-              className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiEdit className="text-xl" />
-              Edit Details
-            </button>
+            {/* existing profile fields */}
+            <div className="flex justify-between px-8 pb-8 mt-4 w-full">
+              {editMode ? (
+                <div className="flex justify-end w-full">
+                  <button
+                    onClick={handleSave}
+                    className={`w-[30%] py-3 text-lg font-semibold ${
+                      emailChanged
+                        ? "bg-yellow-500 hover:bg-yellow-600"
+                        : "bg-green-600 hover:bg-green-700"
+                    } text-white rounded-lg hover:shadow transition-all duration-300 flex items-center justify-center gap-2`}
+                  >
+                    {emailChanged ? "Save & Verify Email" : "Save Changes"}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setEditMode(true)}
+                    className="w-[30%] py-3 text-lg font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <FiEdit className="text-xl" />
+                    Edit Details
+                  </button>
 
-            <button
-              onClick={() => alert("Change Password")}
-              className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <PiLockKeyLight className="text-xl" />
-              Change Password
-            </button>
+                  <button
+                    onClick={() => setShowChangePassword(true)}
+                    className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <PiLockKeyLight className="text-xl" />
+                    Change Password
+                  </button>
 
-            <button
-              onClick={() => alert("Delete Account")}
-              className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <FiTrash2 className="text-xl" />
-              Delete Account
-            </button>
+                  <button
+                    onClick={handleDeleteAccount}
+                    className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
+                  >
+                    <FiTrash2 className="text-xl" />
+                    Delete Account
+                  </button>
+                </>
+              )}
+            </div>
           </>
         )}
       </div>

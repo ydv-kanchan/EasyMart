@@ -104,6 +104,27 @@ const CustomerProfile = () => {
     </div>
   );
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to permanently delete your account? This action cannot be undone."
+      )
+    )
+      return;
+
+    try {
+      await axios.delete("http://localhost:3000/api/profile/delete", {
+        withCredentials: true,
+      });
+
+      alert("Account deleted successfully.");
+      window.location.href = "/"; // or redirect to login/home
+    } catch (err) {
+      console.error("Failed to delete account:", err);
+      alert("Error deleting account. Please try again later.");
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -174,7 +195,7 @@ const CustomerProfile = () => {
                 </button>
 
                 <button
-                  onClick={() => alert("Delete Account")}
+                  onClick={handleDeleteAccount}
                   className="w-[30%] py-3 text-lg font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
                 >
                   <FiTrash2 className="text-xl" />
