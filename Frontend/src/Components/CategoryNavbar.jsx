@@ -18,7 +18,7 @@ const categories = [
       "https://tse4.mm.bing.net/th?id=OIP.Jt3ihnashSF_wVk3dPCdTQHaHa&pid=Api&P=0&h=180",
   },
   {
-    name: "Toy",
+    name: "Toys",
     imageUrl:
       "https://tse2.mm.bing.net/th?id=OIP.ehZ02Kph9MbCm1uzewLZXQAAAA&pid=Api&P=0&h=180",
   },
