@@ -14,6 +14,7 @@ import ResetPassword from "./Components/ResetPassword";
 import CustomerLayout from "./Components/CustomerLayout";
 import VendorLayout from "./Components/VendorLayout";
 import VendorProfile from "./Components/VendorProfile";
+import ProductList from "./Components/ProductList";
 
 function App() {
   const location = useLocation();
@@ -42,6 +43,7 @@ function App() {
         <Route element={<CustomerLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/products/:categoryName" element={<ProductList />} />
         </Route>
 
         {/* Vendor Routes with layout */}
@@ -50,6 +52,7 @@ function App() {
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/vendor-product-list" element={<VendorProductList />} />
           <Route path="/vendor/profile" element={<VendorProfile />} />
+          <Route path="/products/:categoryName" element={<ProductList />} />
         </Route>
       </Routes>
     </div>

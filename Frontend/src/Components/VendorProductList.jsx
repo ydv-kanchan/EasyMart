@@ -118,7 +118,7 @@ const VendorProductList = () => {
               <div key={itemType} className="mb-8 pl-4 border-l-4 border-blue-600">
                 <h3 className="text-xl font-semibold text-blue-700 mb-3">{formatTitle(itemType)}</h3>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-32">
                   {productsInType.map((product) => (
                     <div
                       key={product.item_id}

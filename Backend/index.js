@@ -12,7 +12,7 @@ const profileRoutes = require("./routes/profile");
 const vendorProductRouter = require("./routes/vendorProducts");
 const forgetPasswordRoutes = require("./routes/forgotPassword");
 const changePasswordRoute = require("./routes/changePassword");
-
+const customerProductRouter = require("./routes/customerProducts");
 const app = express();
 require("dotenv").config();
 
@@ -37,6 +37,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/vendorProducts", vendorProductRouter);
 app.use("/api", forgetPasswordRoutes);
 app.use("/api/", changePasswordRoute);
+app.use("/api/customerProducts",customerProductRouter)
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
