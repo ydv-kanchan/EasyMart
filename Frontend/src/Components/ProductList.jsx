@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 const ProductList = () => {
   const { categoryName } = useParams();
@@ -7,8 +7,26 @@ const ProductList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    fetch(`http://localhost:3000/api/customerProducts/category/${categoryName}`)
+    // Retrieve the token from localStorage (or cookies)
+    const token = localStorage.getItem("token");  // Replace with your token retrieval logic
+
+    // If no token exists, you might want to handle it by redirecting or showing an error
+    if (!token) {
+      setError("You are not logged in. Please log in to continue.");
+      setLoading(false);
+      return;
+    }
+
+    fetch(`http://localhost:3000/api/customerProducts/category/${categoryName}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}` // Add token in the Authorization header
+      }
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log("Data in product list");
@@ -45,11 +63,12 @@ const ProductList = () => {
             <div
               key={product.item_id}
               className="bg-white border rounded-2xl p-4 shadow hover:shadow-md transition"
+              onClick={() => navigate(`/product/${product.item_id}`)}
             >
               <img
                 src={`http://localhost:3000${product.item_image}`}
                 alt={product.item_name}
-                 className="w-full h-64 object-cover rounded-xl mb-3"
+                className="w-full h-64 object-cover rounded-xl mb-3"
               />
               <h3 className="text-lg font-semibold text-gray-700">{product.item_name}</h3>
               <p className="text-sm text-gray-500 mt-1">₹{product.item_price}</p>

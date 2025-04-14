@@ -3,10 +3,9 @@ require("dotenv").config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// ✅ Correct role-based middleware
 const authenticateToken = (role) => {
   return (req, res, next) => {
-    const token = req.cookies[`${role}_token`]; // customer_token or vendor_token
+    const token = req.cookies[`${role}_token`]; 
     console.log(`${role} token from cookie:`, token);
 
     if (!token) {

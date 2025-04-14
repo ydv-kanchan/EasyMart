@@ -15,6 +15,7 @@ import CustomerLayout from "./Components/CustomerLayout";
 import VendorLayout from "./Components/VendorLayout";
 import VendorProfile from "./Components/VendorProfile";
 import ProductList from "./Components/ProductList";
+import ProductProfile from "./Components/ProductProfile";
 
 function App() {
   const location = useLocation();
@@ -44,6 +45,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/products/:categoryName" element={<ProductList />} />
+          <Route path="/product/:id" element={<ProductProfile />} />
         </Route>
 
         {/* Vendor Routes with layout */}
