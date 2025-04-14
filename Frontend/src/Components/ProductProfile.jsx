@@ -34,14 +34,14 @@ const ProductProfile = () => {
 
     const checkWishlist = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/wishlist", {
+        const res = await fetch("http://localhost:3000/api/wishlist/all", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
         const data = await res.json();
-        const isInWishlist = data.wishlist.some((item) => item.id == id);
+        const isInWishlist = data.wishlist.some((item) => item.item_id == id); // Check for item_id
         setWishlisted(isInWishlist);
       } catch (err) {
         console.error("Error checking wishlist:", err);
@@ -60,7 +60,7 @@ const ProductProfile = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ product_id: id }),
+        body: JSON.stringify({ item_id: id }), 
       });
 
       const data = await res.json();
