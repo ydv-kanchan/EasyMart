@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import Footer from "./Footer";
 
 const ProductList = () => {
   const { categoryName } = useParams();
@@ -76,6 +77,8 @@ const ProductList = () => {
           ))}
         </div>
       )}
+
+      <Footer />
     </div>
   );
 };
