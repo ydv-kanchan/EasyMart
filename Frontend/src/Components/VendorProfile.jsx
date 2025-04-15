@@ -1,5 +1,3 @@
-// src/components/VendorProfile.jsx
-
 import React, { useState } from "react";
 import { FiHome, FiUser, FiBox, FiClipboard, FiLogOut } from "react-icons/fi";
 import VendorProfileDetails from "./VendorProfileDetails"; // UI-only profile details

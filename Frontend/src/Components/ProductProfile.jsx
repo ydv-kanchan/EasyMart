@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import Footer from "./Footer";
 
 const ProductProfile = () => {
   const { id } = useParams();
@@ -78,6 +79,7 @@ const ProductProfile = () => {
 
   if (!token) {
     return (
+      
       <div className="p-10 text-center text-red-500">
         You are not logged in. Please log in to continue.
       </div>
@@ -88,6 +90,7 @@ const ProductProfile = () => {
   if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
 
   return (
+    <div>
     <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-gray-50 p-4">
       <div className="flex flex-col md:flex-row max-w-5xl w-full gap-10 bg-white shadow-lg rounded-lg p-8">
         <div className="flex-1 flex justify-center items-center">
@@ -130,6 +133,8 @@ const ProductProfile = () => {
           </div>
         </div>
       </div>
+    </div>
+    <Footer />
     </div>
   );
 };

@@ -26,7 +26,7 @@ const TopPicks = () => {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-90px)] flex flex-col md:flex-row justify-between p-4 gap-4 bg-gray-100">
+    <div className="h-[calc(100vh-85px)] flex flex-col md:flex-row justify-between p-4 gap-4 bg-gray-100 mb-4">
       {categories.map((category, index) => (
         <div
           key={index}

@@ -2,6 +2,7 @@ import React from "react";
 import CategoryNavbar from "./CategoryNavbar";
 import Slider from "./Slider";
 import TopPicks from "./TopPicks";
+import Footer from "./Footer";
 
 const Home = () => {
   return (
@@ -9,6 +10,7 @@ const Home = () => {
       <CategoryNavbar />
       <Slider />
       <TopPicks/>
+      <Footer />
     </div>
   );
 };

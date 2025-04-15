@@ -54,7 +54,7 @@ const SignUp_Login = () => {
       if (userType === "customer") {
         navigate("/home");
       } else if (userType === "vendor") {
-        navigate("/vendorHome");
+        navigate("/vendor/profile");
       }
     } catch (error) {
       console.error(error);
