@@ -46,10 +46,9 @@ const VendorSignup = () => {
   const prevStep = () => setStep((prev) => prev - 1);
 
   const handleSubmit = async () => {
-    setErrors([]);
-
     try {
       const payload = new FormData();
+      // Append form data fields
       payload.append("first_name", formData.first_name);
       payload.append("middle_name", formData.middle_name);
       payload.append("last_name", formData.last_name);
@@ -77,18 +76,20 @@ const VendorSignup = () => {
         }
       );
 
-      if (response.status !== 200) {
-        setErrors(response.data.errors || [response.data.message]);
-        return;
+      if (response.status === 200) {
+        alert("Signup successful! Verification email sent.");
+      } else {
+        alert(response.data.message || "Signup failed.");
       }
-
-      alert("Signup successful! Verification email sent.");
-      navigate("/");
     } catch (err) {
       console.error("Error:", err);
-      setErrors(["Something went wrong. Please try again."]);
+      alert("Something went wrong. Please try again.");
+    } finally {
+      navigate("/");
     }
   };
+
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-orange-100 p-6">
