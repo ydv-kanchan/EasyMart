@@ -66,43 +66,36 @@ router.get("/category/:categoryName",validateCustomerToken,(req, res) => {
   });
 
 
-  router.post("/wishlist/add", validateCustomerToken, (req, res) => {
-    const { user_id, item_id } = req.body;
-  
-    // Ensure user_id and item_id are provided
-    if (!user_id || !item_id) {
-      return res.status(400).json({ message: "User ID and Item ID are required" });
-    }
-  
-    // Check if the item is already in the user's wishlist
-    const checkQuery = `
-      SELECT * FROM wishlists WHERE user_id = ? AND item_id = ?
+  router.get("/top-picks", (req, res) => {
+    const query = `
+      SELECT 
+        items.item_id,
+        items.item_name AS name,
+        items.item_desc AS sub,
+        items.item_image AS img,
+        items.item_price AS price,
+        item_types.item_type_name,
+        categories.category_name
+      FROM items
+      JOIN categories ON items.category_id = categories.category_id
+      JOIN item_types ON items.item_type_id = item_types.item_type_id
+      ORDER BY RAND() LIMIT 12
     `;
-    db.query(checkQuery, [user_id, item_id], (err, results) => {
+  
+    db.query(query, (err, results) => {
       if (err) {
-        console.error("Error checking wishlist:", err);
-        return res.status(500).json({ message: "Error checking wishlist" });
+        console.error("Error fetching top picks:", err);
+        return res.status(500).json({ message: "Failed to fetch top picks" });
       }
   
-      if (results.length > 0) {
-        return res.status(400).json({ message: "Item is already in your wishlist" });
-      }
+      const groups = [
+        { title: 'Editor’s Picks', items: results.slice(0, 4) },
+        { title: 'You’ll Love These', items: results.slice(4, 8) },
+        { title: 'Discover More', items: results.slice(8, 12) },
+      ];
   
-      // Insert the new item into the wishlist
-      const insertQuery = `
-        INSERT INTO wishlists (user_id, item_id) 
-        VALUES (?, ?)
-      `;
-      db.query(insertQuery, [user_id, item_id], (err, results) => {
-        if (err) {
-          console.error("Error adding item to wishlist:", err);
-          return res.status(500).json({ message: "Error adding item to wishlist" });
-        }
-  
-        res.status(200).json({ message: "Item added to wishlist" });
-      });
+      res.status(200).json(groups);
     });
   });
   
-
 module.exports = router;
