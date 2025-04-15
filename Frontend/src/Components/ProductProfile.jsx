@@ -46,7 +46,7 @@ const ProductProfile = () => {
         });
 
         const data = await res.json();
-        const isInWishlist = data.wishlist.some((item) => item.item_id === id); // Check for item_id
+        const isInWishlist = data.wishlist.some((item) => item.item_id === id);
         setWishlisted(isInWishlist);
       } catch (err) {
         console.error("Error checking wishlist:", err);
@@ -59,7 +59,7 @@ const ProductProfile = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/wishlist/add", {
+      const res = await fetch("http://localhost:3000/api/wishlistRoutes/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

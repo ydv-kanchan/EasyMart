@@ -12,7 +12,7 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
+  destination: (req, file, cb) => cb(null, "uploads/logo"),
   filename: (req, file, cb) => cb(null, Date.now() + "_" + file.originalname),
 });
 const upload = multer({ storage });
@@ -147,7 +147,7 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
     console.log("Request Body in /vendors route:", req.body);
 
     // File upload
-    const storeLogo = req.file?.filename || null;
+    const storeLogo =req.file ? `/uploads/logo/${req.file.filename}` : null;
 
     // Product categories (can be string or array)
     const categories = req.body.productCategories || [];
@@ -215,7 +215,6 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           const vendorId = result.insertId;
 
-          // Insert vendor categories using category_id
           const getCategoryIdSql = "SELECT category_id FROM categories WHERE category_name = ?";
           const insertVendorCategorySql = "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
 

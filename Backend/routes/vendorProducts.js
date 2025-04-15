@@ -82,17 +82,6 @@ router.post("/add-product", validateToken, upload.single("image"), (req, res) =>
   `;
 
   db.query(accessQuery, [vendorId, category], (err, accessResult) => {
-    if (err) {
-      console.error("Access check failed:", err);
-      return res.status(500).json({ message: "Database error", error: err });
-    }
-
-    if (accessResult.length === 0) {
-      return res.status(403).json({
-        message: "You are not authorized to add products in this category.",
-      });
-    }
-
     const insertQuery = `
       INSERT INTO items
       (item_name, item_desc, item_price, item_stock, item_image, vendor_id, category_id, item_type_id)
