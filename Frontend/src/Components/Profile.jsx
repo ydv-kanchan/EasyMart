@@ -10,6 +10,8 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import CustomerProfile from "./CustomerProfile";
+import Wishlist from "./Wishlist";
+import Cart from "./Cart";
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button
@@ -57,19 +59,9 @@ const Profile = () => {
           </div>
         );
       case "wishlist":
-        return (
-          <div className="p-6 w-full">
-            <h2 className="text-xl font-bold text-gray-800">Your Wishlist</h2>
-            <p className="text-gray-600 mt-2">Your wishlist is empty.</p>
-          </div>
-        );
+        return <Wishlist />;
       case "cart":
-        return (
-          <div className="p-6 w-full">
-            <h2 className="text-xl font-bold text-gray-800">Your Cart</h2>
-            <p className="text-gray-600 mt-2">Your cart is empty.</p>
-          </div>
-        );
+        return <Cart />;
       default:
         return null;
     }

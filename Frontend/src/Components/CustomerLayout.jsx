@@ -6,7 +6,9 @@ const CustomerLayout = () => {
   return (
     <div>
       <Navbar2 />
-      <Outlet />
+      <div className="mt-[2cm]">
+        <Outlet />
+      </div>
     </div>
   );
 };
