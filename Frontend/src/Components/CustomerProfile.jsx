@@ -137,15 +137,17 @@ const CustomerProfile = () => {
       </h2>
 
       {showChangePassword ? (
-        <div className="px-8 pb-8">
-          <ChangePassword
-            role="customer"
-            onClose={() => setShowChangePassword(false)}
-          />
+        <div className="px-8 pb-8 h-[80%] flex items-center justify-center">
+          <div className="w-full sm:w-[80%] lg:w-[60%] xl:w-[50%]">
+            <ChangePassword
+              role="customer"
+              onClose={() => setShowChangePassword(false)}
+            />
+          </div>
         </div>
       ) : (
         <>
-          <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
+        <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
             {inputBox("First Name", "first_name", user.first_name)}
             {inputBox("Middle Name", "middle_name", user.middle_name || "")}
             {inputBox("Last Name", "last_name", user.last_name || "")}

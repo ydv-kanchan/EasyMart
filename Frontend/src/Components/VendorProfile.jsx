@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { FiHome, FiUser, FiBox, FiClipboard, FiLogOut } from "react-icons/fi";
+import { FiHome, FiUser, FiBox, FiClipboard } from "react-icons/fi";
 import VendorProfileDetails from "./VendorProfileDetails"; // UI-only profile details
 import Dashboard from "./Dashboard";
-import MyProducts from "./MyProducts";
 import VendorProductList from "./VendorProductList";
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -84,12 +83,6 @@ const VendorProfile = () => {
           label="Orders"
           active={selectedTab === "orders"}
           onClick={() => setSelectedTab("orders")}
-        />
-        <SidebarItem
-          icon={FiLogOut}
-          label="Logout"
-          active={false}
-          onClick={() => alert("Logout clicked (UI-only)")}
         />
       </div>
 
