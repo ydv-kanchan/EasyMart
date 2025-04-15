@@ -216,27 +216,41 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
           const vendorId = result.insertId;
 
           // Insert vendor categories using category_id
-          const getCategoryIdSql = "SELECT category_id FROM categories WHERE category_name = ?";
-          const insertVendorCategorySql = "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
+          const getCategoryIdSql =
+            "SELECT category_id FROM categories WHERE category_name = ?";
+          const insertVendorCategorySql =
+            "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
 
           for (let i = 0; i < cleanCategories.length; i++) {
             const catName = cleanCategories[i];
 
             db.query(getCategoryIdSql, [catName], (err, categoryResult) => {
               if (err || categoryResult.length === 0) {
-                console.error(`Category "${catName}" not found or error occurred:`, err);
+                console.error(
+                  `Category "${catName}" not found or error occurred:`,
+                  err
+                );
                 return;
               }
 
               const categoryId = categoryResult[0].category_id;
 
-              db.query(insertVendorCategorySql, [vendorId, categoryId], (err) => {
-                if (err) {
-                  console.error("Error inserting into vendor_categories:", err);
-                } else {
-                  console.log(`Inserted vendor category: ${catName} (ID: ${categoryId})`);
+              db.query(
+                insertVendorCategorySql,
+                [vendorId, categoryId],
+                (err) => {
+                  if (err) {
+                    console.error(
+                      "Error inserting into vendor_categories:",
+                      err
+                    );
+                  } else {
+                    console.log(
+                      `Inserted vendor category: ${catName} (ID: ${categoryId})`
+                    );
+                  }
                 }
-              });
+              );
             });
           }
 
@@ -269,7 +283,9 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
     });
   } catch (err) {
     console.error("Vendor Signup Error:", err);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 });
 

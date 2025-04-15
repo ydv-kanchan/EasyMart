@@ -58,7 +58,7 @@ const ProductProfile = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/wishlist/add", {
+      const res = await fetch("http://localhost:3000/api/wishlistRoutes/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
