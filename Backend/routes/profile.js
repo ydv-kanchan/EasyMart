@@ -186,7 +186,6 @@ router.get("/verify-email", (req, res) => {
   }
 });
 
-
 // ========== FETCH Customer Profile ==========
 router.get("/customer", authenticateToken("customer"), (req, res) => {
   const { role, id } = req.user;
@@ -298,23 +297,6 @@ router.put("/vendor/update", authenticateToken("vendor"), (req, res) => {
 });
 
 
-router.delete("/delete", async (req, res, next) => {
-  // Check for vendor or customer token
-  const vendorAuth = authenticateToken("vendor");
-  const customerAuth = authenticateToken("customer");
-
-  // Run both middlewares, whichever matches will proceed
-  vendorAuth(req, res, (err) => {
-    if (!err) return deleteAccount(req, res, "vendor");
-    customerAuth(req, res, (err) => {
-      if (!err) return deleteAccount(req, res, "customer");
-      return res
-        .status(401)
-        .json({ message: "Unauthorized. Token not valid." });
-    });
-  });
-});
-
 // 🔁 Reusable deletion logic
 router.delete("/delete", (req, res) => {
   const vendorToken = req.cookies.vendor_token;
@@ -348,11 +330,9 @@ router.delete("/delete", (req, res) => {
       (err, result) => {
         if (err) {
           console.error("Error deleting account:", err);
-          return res
-            .status(500)
-            .json({
-              message: "Error deleting account. Please try again later.",
-            });
+          return res.status(500).json({
+            message: "Error deleting account. Please try again later.",
+          });
         }
 
         // ✅ Clear correct token after deletion
@@ -372,6 +352,5 @@ router.delete("/delete", (req, res) => {
       .json({ message: "Unauthorized: Invalid or expired token" });
   }
 });
-
 
 module.exports = router;

@@ -26,6 +26,7 @@ function App() {
     "/signup-selection",
     "/signup/user",
     "/signup/vendor",
+    "/about",
   ].includes(location.pathname);
 
   return (

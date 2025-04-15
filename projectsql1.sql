@@ -157,6 +157,7 @@ select * from items;
 select * from customers;
 select * from vendors;
 
+
 truncate customers;
 truncate vendor_categories;
 delete from vendors where vendor_id = 2;

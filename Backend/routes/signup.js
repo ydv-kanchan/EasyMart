@@ -223,19 +223,31 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
             db.query(getCategoryIdSql, [catName], (err, categoryResult) => {
               if (err || categoryResult.length === 0) {
-                console.error(`Category "${catName}" not found or error occurred:`, err);
+                console.error(
+                  `Category "${catName}" not found or error occurred:`,
+                  err
+                );
                 return;
               }
 
               const categoryId = categoryResult[0].category_id;
 
-              db.query(insertVendorCategorySql, [vendorId, categoryId], (err) => {
-                if (err) {
-                  console.error("Error inserting into vendor_categories:", err);
-                } else {
-                  console.log(`Inserted vendor category: ${catName} (ID: ${categoryId})`);
+              db.query(
+                insertVendorCategorySql,
+                [vendorId, categoryId],
+                (err) => {
+                  if (err) {
+                    console.error(
+                      "Error inserting into vendor_categories:",
+                      err
+                    );
+                  } else {
+                    console.log(
+                      `Inserted vendor category: ${catName} (ID: ${categoryId})`
+                    );
+                  }
                 }
-              });
+              );
             });
           }
 
@@ -268,7 +280,9 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
     });
   } catch (err) {
     console.error("Vendor Signup Error:", err);
-    res.status(500).json({ message: "Internal Server Error", error: err.message });
+    res
+      .status(500)
+      .json({ message: "Internal Server Error", error: err.message });
   }
 });
 

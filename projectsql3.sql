@@ -104,3 +104,43 @@ END;
 UPDATE items
 SET item_image = '/uploads/products/board_toy3.png'
 WHERE item_name = 'Mystic Quest';
+
+
+CREATE TABLE wishlist (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  product_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_wishlist (customer_id, product_id)
+);
+ALTER TABLE wishlist CHANGE COLUMN product_id item_id INT;
+
+desc items;
+desc customers;
+
+CREATE TABLE cart (
+  cart_id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  item_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_cart (customer_id, item_id),
+  FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
+  FOREIGN KEY (item_id) REFERENCES items(item_id) ON DELETE CASCADE
+);
+
+select * from cart;
+desc items;
+SELECT * FROM items WHERE item_id = 120; 
+DESCRIBE cart;
+SHOW CREATE TABLE cart;
+
+desc wishlist;
+CREATE TABLE wishlist (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT NOT NULL,
+  product_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_wishlist (customer_id, product_id)
+);
+ALTER TABLE wishlist CHANGE COLUMN product_id item_id INT;
