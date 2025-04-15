@@ -15,6 +15,7 @@ const changePasswordRoute = require("./routes/changePassword");
 const customerProductRouter = require("./routes/customerProducts");
 const wishlistRouter = require("./routes/wishlistRoutes");
 const cartRoutes = require("./routes/cart");
+const shopDetailsRouter = require("./routes/shopDetails");
 
 const app = express();
 require("dotenv").config();
@@ -42,6 +43,8 @@ app.use("/api/", changePasswordRoute);
 app.use("/api/customerProducts", customerProductRouter);
 app.use("/api/wishlistRoutes", wishlistRouter);
 app.use("/api/cart", cartRoutes);
+app.use("/api/shopDetails",shopDetailsRouter);
+
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

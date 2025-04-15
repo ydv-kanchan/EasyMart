@@ -46,7 +46,7 @@ const ProductProfile = () => {
         });
 
         const data = await res.json();
-        const isInWishlist = data.wishlist.some((item) => item.item_id === id); // Check for item_id
+        const isInWishlist = data.wishlist.some((item) => item.item_id === id);
         setWishlisted(isInWishlist);
       } catch (err) {
         console.error("Error checking wishlist:", err);
