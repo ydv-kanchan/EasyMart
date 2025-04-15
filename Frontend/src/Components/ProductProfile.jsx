@@ -8,6 +8,7 @@ const ProductProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [wishlisted, setWishlisted] = useState(false);
+  const [cartUpdated, setCartUpdated] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -16,11 +17,14 @@ const ProductProfile = () => {
 
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/customerProducts/item/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await fetch(
+          `http://localhost:3000/api/customerProducts/item/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (!res.ok) throw new Error("Failed to fetch product");
 
@@ -42,7 +46,7 @@ const ProductProfile = () => {
         });
 
         const data = await res.json();
-        const isInWishlist = data.wishlist.some((item) => item.item_id == id); // Check for item_id
+        const isInWishlist = data.wishlist.some((item) => item.item_id === id); // Check for item_id
         setWishlisted(isInWishlist);
       } catch (err) {
         console.error("Error checking wishlist:", err);
@@ -55,13 +59,13 @@ const ProductProfile = () => {
 
   const handleAddToWishlist = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/wishlistRoutes/add", {
+      const res = await fetch("http://localhost:3000/api/wishlist/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ item_id: id }), 
+        body: JSON.stringify({ item_id: id }),
       });
 
       const data = await res.json();
@@ -77,6 +81,30 @@ const ProductProfile = () => {
     }
   };
 
+  const handleAddToCart = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ item_id: id, quantity: 1 }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setCartUpdated(true);
+      } else {
+        alert(data.message || "Failed to add to cart");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to cart");
+    }
+  };
+
   if (!token) {
     return (
       
@@ -87,7 +115,8 @@ const ProductProfile = () => {
   }
 
   if (loading) return <div className="p-10 text-center">Loading...</div>;
-  if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
+  if (error)
+    return <div className="p-10 text-center text-red-500">{error}</div>;
 
   return (
     <div>
@@ -117,7 +146,7 @@ const ProductProfile = () => {
           <div className="flex gap-4">
             <button
               className="bg-blue-400 text-white px-6 py-3 mt-4 rounded hover:bg-blue-800 transition"
-              onClick={() => alert("Add to cart functionality coming soon!")}
+              onClick={handleAddToCart}
             >
               Add to Cart
             </button>
@@ -131,6 +160,10 @@ const ProductProfile = () => {
               {wishlisted ? "Wishlisted ❤️" : "Add to Wishlist"}
             </button>
           </div>
+
+          {cartUpdated && (
+            <div className="mt-4 text-green-500">Item added to cart!</div>
+          )}
         </div>
       </div>
     </div>

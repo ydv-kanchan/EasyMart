@@ -17,7 +17,7 @@ import VendorProfile from "./Components/VendorProfile";
 import ProductList from "./Components/ProductList";
 import ProductProfile from "./Components/ProductProfile";
 import Wishlist from "./Components/Wishlist";
-
+import Cart from "./Components/Cart";
 function App() {
   const location = useLocation();
 
@@ -33,7 +33,6 @@ function App() {
       {showOldNavbar && <Navbar />}
 
       <Routes>
-        {/* Public routes */}
         <Route path="/" element={<SignUp_Login />} />
         <Route path="/signup-selection" element={<SignUpSelection />} />
         <Route path="/signup/user" element={<CustomerSignup />} />
@@ -41,16 +40,15 @@ function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Customer Routes with layout */}
         <Route element={<CustomerLayout />}>
           <Route path="/home" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/products/:categoryName" element={<ProductList />} />
           <Route path="/product/:id" element={<ProductProfile />} />
-          <Route path="/wishlist" element={<Wishlist />} /> 
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/cart" element={<Cart />} />
         </Route>
 
-        {/* Vendor Routes with layout */}
         <Route element={<VendorLayout />}>
           <Route path="/vendorHome" element={<VendorHome />} />
           <Route path="/add-product" element={<AddProduct />} />
@@ -64,4 +62,3 @@ function App() {
 }
 
 export default App;
-

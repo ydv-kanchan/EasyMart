@@ -5,7 +5,9 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 const authenticateToken = (role) => {
   return (req, res, next) => {
-    const token = req.cookies[`${role}_token`]; 
+    const headerToken = req.headers.authorization?.split(" ")[1];
+    const cookieToken = req.cookies[`${role}_token`];
+    const token = headerToken || cookieToken;
     console.log(`${role} token from cookie:`, token);
 
     if (!token) {
@@ -21,7 +23,7 @@ const authenticateToken = (role) => {
           .status(403)
           .json({ message: `Access denied. Invalid ${role} token.` });
       }
-      req.user = decoded; // store decoded info for later use
+      req.user = decoded;
       next();
     } catch (err) {
       return res

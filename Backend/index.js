@@ -14,6 +14,8 @@ const forgetPasswordRoutes = require("./routes/forgotPassword");
 const changePasswordRoute = require("./routes/changePassword");
 const customerProductRouter = require("./routes/customerProducts");
 const wishlistRouter = require("./routes/wishlistRoutes");
+const cartRoutes = require("./routes/cart");
+
 const app = express();
 require("dotenv").config();
 
@@ -28,7 +30,6 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static("uploads"));
 
-// Routes
 app.use("/api/signup", signupRouter);
 app.use("/api/verify", verifyRoutes);
 app.use("/api/login", loginRouter);
@@ -38,8 +39,9 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/vendorProducts", vendorProductRouter);
 app.use("/api", forgetPasswordRoutes);
 app.use("/api/", changePasswordRoute);
-app.use("/api/customerProducts",customerProductRouter)
-app.use("/api/wishlistRoutes",wishlistRouter);
+app.use("/api/customerProducts", customerProductRouter);
+app.use("/api/wishlistRoutes", wishlistRouter);
+app.use("/api/cart", cartRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
