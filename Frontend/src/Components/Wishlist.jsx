@@ -24,7 +24,7 @@ const Wishlist = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
@@ -48,7 +48,7 @@ const Wishlist = () => {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((res) => res.json())
@@ -62,8 +62,33 @@ const Wishlist = () => {
       .catch(() => alert("Something went wrong!"));
   };
 
+  const handleAddToCart = async (itemId) => {
+    try {
+      const res = await fetch("http://localhost:3000/api/cart/add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ item_id: itemId, quantity: 1 }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert("Item added to cart!");
+      } else {
+        alert(data.message || "Failed to add to cart");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add to cart");
+    }
+  };
+
   if (loading) return <div className="p-10 text-center">Loading...</div>;
-  if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
+  if (error)
+    return <div className="p-10 text-center text-red-500">{error}</div>;
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -79,7 +104,10 @@ const Wishlist = () => {
               </div>
             ) : (
               wishlist.map((item) => (
-                <div key={item.item_id} className="bg-white shadow-lg rounded-lg p-4 relative">
+                <div
+                  key={item.item_id}
+                  className="bg-white shadow-lg rounded-lg p-4 relative"
+                >
                   {/* Remove Icon */}
                   <IoClose
                     className="absolute top-3 right-3 text-red-600 hover:text-red-800 cursor-pointer text-xl"
@@ -100,11 +128,13 @@ const Wishlist = () => {
                   <div className="mt-4 text-center">
                     <h3 className="text-xl font-semibold">{item.item_name}</h3>
                     <p className="text-lg text-gray-600">₹{item.item_price}</p>
-                    <p className="text-sm text-gray-700">{item.item_category}</p>
+                    <p className="text-sm text-gray-700">
+                      {item.item_category}
+                    </p>
                     <div className="mt-4 flex justify-center items-center">
                       <button
                         className="bg-blue-400 text-white px-6 py-2 rounded hover:bg-blue-800 transition"
-                        onClick={() => alert("Add to cart functionality coming soon!")}
+                        onClick={() => handleAddToCart(item.item_id)}
                       >
                         Add to Cart
                       </button>
