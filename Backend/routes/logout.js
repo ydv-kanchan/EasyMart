@@ -4,7 +4,7 @@ const router = express.Router();
 router.get("/logout", (req, res) => {
   res.clearCookie("customer_token", {
     httpOnly: true,
-    secure: false, // should match login setup
+    secure: false, 
     sameSite: "Lax",
     path: "/",
   });

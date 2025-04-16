@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Email transporter setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -26,22 +25,21 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Customer Signup Route
 router.post("/customers", validateSignup("customer"), async (req, res) => {
   console.log("Received Customer Data:", req.body);
 
   try {
     const {
       firstName,
-      middleName, // Optional
-      lastName, // Optional
+      middleName,
+      lastName,
       email,
       username,
       password,
       confirmPassword,
       phone,
       houseNo,
-      street, // Added street separately
+      street,
       landmark,
       city,
       state,
@@ -146,10 +144,8 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
     console.log("Request Body in /vendors route:", req.body);
 
-    // File upload
-    const storeLogo =req.file ? `/uploads/logo/${req.file.filename}` : null;
+    const storeLogo = req.file ? `/uploads/logo/${req.file.filename}` : null;
 
-    // Product categories (can be string or array)
     const categories = req.body.productCategories || [];
     const productCategories = Array.isArray(categories)
       ? categories
@@ -159,7 +155,6 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
       (cat) => typeof cat === "string" && cat.trim() !== ""
     );
 
-    // Check if username or email already exists
     const checkSql = "SELECT * FROM vendors WHERE username = ? OR email = ?";
     db.query(checkSql, [username, email], async (err, result) => {
       if (err) {
@@ -178,10 +173,10 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
         });
       }
 
-      // Hash the password
+  
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert vendor details
+ 
       const insertSql = `
         INSERT INTO vendors (
           first_name, middle_name, last_name, email, username,
@@ -215,8 +210,10 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           const vendorId = result.insertId;
 
-          const getCategoryIdSql = "SELECT category_id FROM categories WHERE category_name = ?";
-          const insertVendorCategorySql = "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
+          const getCategoryIdSql =
+            "SELECT category_id FROM categories WHERE category_name = ?";
+          const insertVendorCategorySql =
+            "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
 
           for (let i = 0; i < cleanCategories.length; i++) {
             const catName = cleanCategories[i];
@@ -253,14 +250,13 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           console.log("Vendor inserted with ID:", vendorId);
 
-          // Generate email verification token
+   
           const token = jwt.sign({ email, role: "vendor" }, JWT_SECRET, {
             expiresIn: "1d",
           });
 
           const verifyURL = `http://localhost:3000/api/verify/vendor?token=${token}`;
 
-          // Send verification email
           await transporter.sendMail({
             from: `"EasyMart" <${process.env.EMAIL}>`,
             to: email,

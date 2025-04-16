@@ -25,7 +25,6 @@ const NavbarVendor = () => {
   return (
     <div className="w-full bg-white shadow fixed top-0 z-50">
       <div className="max-w-[1000px] mx-auto flex items-center justify-between h-20">
-        {/* Logo on the left */}
         <div
           className="h-24 cursor-pointer flex items-center"
           onClick={() => navigate("/vendorHome")}
@@ -33,10 +32,8 @@ const NavbarVendor = () => {
           <img src="/logo.png" alt="Logo" className="h-full w-auto" />
         </div>
 
-        {/* Spacer */}
         <div className="flex-1"></div>
 
-        {/* Right side: Account + Logout */}
         <div className="flex items-center gap-[0.2cm]">
           <div
             className="relative"
@@ -51,7 +48,7 @@ const NavbarVendor = () => {
               </span>
             </button>
 
-            {/* Dropdown */}
+         
             <div
               className={`absolute right-0 mt-0 w-56 bg-white rounded-md shadow-md z-50 border border-gray-200 transition-all duration-150 ${
                 isDropdownOpen ? "block" : "hidden"
@@ -84,7 +81,7 @@ const NavbarVendor = () => {
             </div>
           </div>
 
-          {/* Logout Button */}
+       
           <button
             onClick={handleLogout}
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-red-100 hover:text-red-600 transition"

@@ -38,34 +38,28 @@ const handleLogin = (req, res, userType, idField) => {
         });
       }
 
-      // ✅ Generate token
       const token = jwt.sign(
         { id: user[idField], role: userType },
         JWT_SECRET,
-        { expiresIn: "30m" }
+        { expiresIn: "50m" }
       );
 
-      // ✅ Set correct cookie name
       const cookieName =
         userType === "customer" ? "customer_token" : "vendor_token";
 
-      // ✅ Clear opposite cookie
       const oppositeCookie =
         userType === "customer" ? "vendor_token" : "customer_token";
       res.clearCookie(oppositeCookie);
 
-      // ✅ Set current token in cookie
       res.cookie(cookieName, token, {
         httpOnly: true,
-        secure: false, // Set to true in production with HTTPS
+        secure: false,
         sameSite: "Lax",
-        maxAge: 30 * 60 * 1000, // 30 minutes
+        maxAge: 50 * 60 * 1000,
       });
-
-      // ✅ Respond with user data
       res.status(200).json({
         message: "Login successful",
-        token, // Optional: useful for frontend fallback
+        token, 
         user: {
           id: user[idField],
           name: user.full_name || user.fullName,

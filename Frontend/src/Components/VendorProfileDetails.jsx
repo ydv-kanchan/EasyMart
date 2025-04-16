@@ -58,7 +58,7 @@ const VendorProfileDetails = () => {
       alert(res.data.message);
 
       if (res.data.requiresVerification) {
-        // Don't update originalEmail until verification is done
+        
         return;
       } else {
         setOriginalEmail(formData.email);
@@ -86,7 +86,7 @@ const VendorProfileDetails = () => {
       });
 
       alert("Account deleted successfully.");
-      window.location.href = "/"; // or redirect to login/home
+      window.location.href = "/"; 
     } catch (err) {
       console.error("Failed to delete account:", err);
       alert("Error deleting account. Please try again later.");
@@ -129,7 +129,7 @@ const VendorProfileDetails = () => {
       className="w-full h-full bg-white shadow-md rounded-2xl flex flex-col justify-between"
     >
       {showChangePassword ? (
-        // Render ChangePassword component when showChangePassword is true
+     
         <ChangePassword
           role="vendor"
           onClose={() => setShowChangePassword(false)}
@@ -183,7 +183,7 @@ const VendorProfileDetails = () => {
                   </button>
 
                   <button
-                    onClick={() => setShowChangePassword(true)} // Set showChangePassword to true when button is clicked
+                    onClick={() => setShowChangePassword(true)}
                     className="w-[30%] py-3 text-lg font-semibold bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 hover:shadow transition-all duration-300 flex items-center justify-center gap-2"
                   >
                     <PiLockKeyLight className="text-xl" />

@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 
-// POST /api/change-password/:role
 router.post("/change-password/:role", async (req, res) => {
   const { role } = req.params;
   const { currentPassword, newPassword } = req.body;
@@ -36,7 +35,6 @@ router.post("/change-password/:role", async (req, res) => {
       return res.status(400).json({ error: "Invalid role provided." });
     }
 
-    // Step 1: Fetch current hashed password
     db.query(
       `SELECT password FROM ${tableName} WHERE ${idColumn} = ?`,
       [userId],
@@ -52,7 +50,6 @@ router.post("/change-password/:role", async (req, res) => {
 
         const storedHashedPassword = results[0].password;
 
-        // Step 2: Compare current password
         const isMatch = await bcrypt.compare(
           currentPassword,
           storedHashedPassword
@@ -63,7 +60,6 @@ router.post("/change-password/:role", async (req, res) => {
             .json({ error: "Current password is incorrect." });
         }
 
-        // Step 3: Hash new password and update
         const newHashedPassword = await bcrypt.hash(newPassword, 10);
 
         db.query(

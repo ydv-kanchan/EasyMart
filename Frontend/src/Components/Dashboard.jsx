@@ -23,7 +23,6 @@ const Dashboard = () => {
         </p>
       </section>
 
-      {/* Customer Feedback */}
       <section className="bg-white p-6 rounded-2xl shadow">
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           💬 Customer Feedback

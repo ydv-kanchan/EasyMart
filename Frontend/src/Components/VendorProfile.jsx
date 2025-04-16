@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiHome, FiUser, FiBox, FiClipboard } from "react-icons/fi";
-import VendorProfileDetails from "./VendorProfileDetails"; // UI-only profile details
+import VendorProfileDetails from "./VendorProfileDetails"; 
 import Dashboard from "./Dashboard";
 import VendorProductList from "./VendorProductList";
 

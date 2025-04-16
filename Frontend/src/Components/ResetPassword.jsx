@@ -48,7 +48,7 @@ const ResetPassword = () => {
       if (!response.ok) {
         setError(data.message || "Something went wrong.");
       } else {
-        console.log("✅ Password reset successful.");
+        console.log(" Password reset successful.");
         alert("Password updated! Please login again.");
         navigate("/login");
       }

@@ -27,7 +27,6 @@ const Navbar2 = () => {
     <div className="w-full bg-white shadow fixed top-0 z-50">
       <div className="max-w-[1200px] mx-auto px-4 py-0 flex items-center justify-between">
         <div className="flex items-center justify-center w-full gap-[.5rem]">
-          {/* Logo */}
           <div
             className="h-20 cursor-pointer"
             onClick={() => navigate("/home")}
@@ -35,7 +34,7 @@ const Navbar2 = () => {
             <img src="/logo.png" alt="Logo" className="h-full w-full" />
           </div>
 
-          {/* Search Bar */}
+    
           <div className="flex items-center flex-grow max-w-2xl bg-blue-50 px-3 py-3 shadow-sm rounded-md ml-[0.5rem]">
             <IoSearchOutline className="text-xl text-gray-600 mr-2" />
             <input
@@ -45,13 +44,12 @@ const Navbar2 = () => {
             />
           </div>
 
-          {/* Account Dropdown WRAPPER */}
           <div
             className="relative"
             onMouseEnter={() => setIsDropdownOpen(true)}
             onMouseLeave={() => setIsDropdownOpen(false)}
           >
-            {/* Button */}
+  
             <button className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center">
               <MdOutlineAccountCircle className="mr-1.5 text-xl" />
               Account
@@ -60,7 +58,7 @@ const Navbar2 = () => {
               </span>
             </button>
 
-            {/* Dropdown */}
+       
             <div
               className={`absolute right-0 mt-0 w-56 bg-white rounded-md shadow-md z-50 border border-gray-200 transition-all duration-150 ${
                 isDropdownOpen ? "block" : "hidden"
@@ -93,7 +91,7 @@ const Navbar2 = () => {
             </div>
           </div>
 
-          {/* Cart Button */}
+      
           <Link
             to="/cart"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"
@@ -102,7 +100,7 @@ const Navbar2 = () => {
             Cart
           </Link>
 
-          {/* Become a Seller */}
+         
           <Link
             to="/signup/vendor"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"

@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; // ✅ Added for navigation
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = ({ role }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
-  const navigate = useNavigate(); // ✅ Initialize navigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,11 +30,11 @@ const ChangePassword = ({ role }) => {
         }
       );
 
-      alert(res.data.message || "Password changed successfully."); // ✅ Show alert
+      alert(res.data.message || "Password changed successfully.");
       if (role === "vendor") {
-        navigate("/vendorHome"); // Redirect to vendor home if role is 'vendor'
+        navigate("/vendorHome"); 
       } else {
-        navigate("/home"); // Redirect to customer home if role is 'customer'
+        navigate("/home"); 
       }
     } catch (error) {
       console.error(

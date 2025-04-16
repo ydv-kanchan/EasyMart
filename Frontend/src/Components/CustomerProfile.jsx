@@ -29,7 +29,7 @@ const CustomerProfile = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Track if email is changed
+
     if (name === "email" && value !== user.email) {
       setEmailChanged(true);
     } else if (name === "email") {
@@ -118,7 +118,7 @@ const CustomerProfile = () => {
       });
 
       alert("Account deleted successfully.");
-      window.location.href = "/"; // or redirect to login/home
+      window.location.href = "/";
     } catch (err) {
       console.error("Failed to delete account:", err);
       alert("Error deleting account. Please try again later.");
