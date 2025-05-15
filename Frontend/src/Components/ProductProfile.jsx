@@ -158,7 +158,7 @@ const ProductProfile = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:3000/api/customerProducts/buy", {
+      const res = await fetch("http://localhost:3000/api/cart/buy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -171,6 +171,7 @@ const ProductProfile = () => {
           items: [
             {
               item_id: id,
+              item_name:product.item_name,
               quantity: 1,
               price_per_item: product.item_price,
             },
