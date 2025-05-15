@@ -94,7 +94,7 @@ const ProductProfile = () => {
     fetchUserInfo();
   }, [id, token]);
 
-  // Handle Add to Wishlist same as before
+  // Handle Add to Wishlist
   const handleAddToWishlist = async () => {
     try {
       const res = await fetch("http://localhost:3000/api/wishlistRoutes/add", {
@@ -119,7 +119,7 @@ const ProductProfile = () => {
     }
   };
 
-  // Handle Add to Cart same as before
+  // Handle Add to Cart
   const handleAddToCart = async () => {
     try {
       const res = await fetch("http://localhost:3000/api/cart/add", {
@@ -144,7 +144,7 @@ const ProductProfile = () => {
     }
   };
 
-  // New: On Buy Now click -> open modal instead of direct order
+  // On Buy Now click -> open modal instead of direct order
   const handleBuyNow = () => {
     setShowModal(true);
   };
@@ -208,7 +208,7 @@ const ProductProfile = () => {
   return (
     <div>
       <div className="flex justify-center items-center min-h-[calc(100vh-4rem)] bg-gray-50 p-4">
-        <div className="flex flex-col md:flex-row max-w-5xl w-full gap-10 bg-white shadow-lg rounded-lg p-8">
+        <div className="flex flex-col md:flex-row max-w-5xl w-full gap-10 bg-white shadow-lg rounded-lg p-8 relative">
           <div className="flex-1 flex justify-center items-center">
             <img
               src={`http://localhost:3000${product.item_image}`}
@@ -218,7 +218,22 @@ const ProductProfile = () => {
           </div>
 
           <div className="flex-1 space-y-6">
-            <h1 className="text-3xl font-bold">{product.item_name}</h1>
+            {/* Title + Close button container */}
+            <div className="flex justify-between items-center">
+              <h1 className="text-3xl font-bold">{product.item_name}</h1>
+              <button
+                onClick={() => {
+                 
+                    navigate(-1);
+                }}
+                aria-label="Back to category"
+                className="text-3xl font-bold text-gray-700 hover:text-gray-900"
+                style={{ lineHeight: 1 }}
+              >
+                &times;
+              </button>
+            </div>
+
             <p className="text-2xl text-red-600">₹{product.item_price}</p>
             <p className="text-gray-700">{product.item_description}</p>
 
@@ -291,12 +306,12 @@ const ProductProfile = () => {
 
             {/* Order summary */}
             <div className="mb-6 bg-gray-50 p-4 rounded border max-h-40 overflow-y-auto">
-              <h3 className="text-lg font-medium mb-2 text-gray-700">Order Summary</h3>
+              <h3 className="text-lg font-medium mb-2 text-gray-700">
+                Order Summary
+              </h3>
               <ul className="text-gray-700 text-sm mb-2">
                 <li className="flex justify-between mb-1">
-                  <span>
-                    {product.item_name} × 1
-                  </span>
+                  <span>{product.item_name} × 1</span>
                   <span>₹{product.item_price}</span>
                 </li>
               </ul>
@@ -364,7 +379,7 @@ const ProductProfile = () => {
                   />
                 )}
               </fieldset>
-                <p className="mb-6 text-sm text-gray-600">
+              <p className="mb-6 text-sm text-gray-600">
                 Payment Method: <strong>Cash</strong> only
               </p>
 
