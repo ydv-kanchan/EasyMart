@@ -40,7 +40,7 @@ const SignUp_Login = () => {
       );
 
       const data = await response.json();
-      console.log(data);
+      
 
       if (!response.ok) {
         setError(data.message || "Invalid credentials.");

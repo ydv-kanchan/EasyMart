@@ -98,8 +98,8 @@ router.get("/item/:id", (req, res) => {
   });
 });
 
-  router.get("/top-picks", (req, res) => {
-    const query = `
+router.get("/top-picks", (req, res) => {
+  const query = `
       SELECT 
         items.item_id,
         items.item_name AS name,
@@ -113,29 +113,31 @@ router.get("/item/:id", (req, res) => {
       JOIN item_types ON items.item_type_id = item_types.item_type_id
       ORDER BY RAND() LIMIT 12
     `;
-  
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching top picks:", err);
-        return res.status(500).json({ message: "Failed to fetch top picks" });
-      }
-  
-      const groups = [
-        { title: 'Editor’s Picks', items: results.slice(0, 4) },
-        { title: 'You’ll Love These', items: results.slice(4, 8) },
-        { title: 'Discover More', items: results.slice(8, 12) },
-      ];
-  
-      res.status(200).json(groups);
-    });
-  });
 
-  router.post("/buy", authenticateToken("customer"), (req, res) => {
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching top picks:", err);
+      return res.status(500).json({ message: "Failed to fetch top picks" });
+    }
+
+    const groups = [
+      { title: "Editor’s Picks", items: results.slice(0, 4) },
+      { title: "You’ll Love These", items: results.slice(4, 8) },
+      { title: "Discover More", items: results.slice(8, 12) },
+    ];
+
+    res.status(200).json(groups);
+  });
+});
+
+router.post("/buy", authenticateToken("customer"), (req, res) => {
   const { item_id, quantity } = req.body;
   const customer_id = req.user.id;
 
   if (!item_id || !quantity) {
-    return res.status(400).json({ message: "Item ID and quantity are required" });
+    return res
+      .status(400)
+      .json({ message: "Item ID and quantity are required" });
   }
 
   db.query(
@@ -143,7 +145,8 @@ router.get("/item/:id", (req, res) => {
     [item_id],
     (err, result) => {
       if (err) return res.status(500).json({ message: "Database error" });
-      if (result.length === 0) return res.status(404).json({ message: "Item not found" });
+      if (result.length === 0)
+        return res.status(404).json({ message: "Item not found" });
 
       const { item_price, item_stock } = result[0];
 
@@ -157,15 +160,19 @@ router.get("/item/:id", (req, res) => {
         "INSERT INTO orders (customer_id, item_id, quantity, total_price) VALUES (?, ?, ?, ?)",
         [customer_id, item_id, quantity, total_price],
         (err, orderResult) => {
-          if (err) return res.status(500).json({ message: "Failed to place order" });
+          if (err)
+            return res.status(500).json({ message: "Failed to place order" });
 
-          
           db.query(
             "UPDATE items SET item_stock = item_stock - ? WHERE item_id = ?",
             [quantity, item_id],
             (err) => {
               if (err) {
-                return res.status(500).json({ message: "Order placed, but failed to update stock" });
+                return res
+                  .status(500)
+                  .json({
+                    message: "Order placed, but failed to update stock",
+                  });
               }
 
               return res.status(201).json({
@@ -209,6 +216,4 @@ router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   });
 });
 
-
-  
 module.exports = router;
