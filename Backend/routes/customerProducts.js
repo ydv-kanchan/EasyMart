@@ -154,7 +154,7 @@ router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
     FROM items i
     JOIN categories c ON i.category_id = c.category_id
     JOIN item_types t ON i.item_type_id = t.item_type_id
-    WHERE LOWER(i.item_name) LIKE ? OR LOWER(c.category_name) LIKE ?
+    WHERE (LOWER(i.item_name) LIKE ? OR LOWER(c.category_name) LIKE ?)
   `;
 
   let queryParams = [searchValue, searchValue];
