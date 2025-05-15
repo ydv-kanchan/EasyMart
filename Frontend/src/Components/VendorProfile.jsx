@@ -3,6 +3,7 @@ import { FiHome, FiUser, FiBox, FiClipboard } from "react-icons/fi";
 import VendorProfileDetails from "./VendorProfileDetails"; 
 import Dashboard from "./Dashboard";
 import VendorProductList from "./VendorProductList";
+import IncomingVendorOrders from "./IncomingVendorOrders";
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
   <button
@@ -44,10 +45,7 @@ const VendorProfile = () => {
       case "orders":
         return (
           <div className="p-6 w-full">
-            <h2 className="text-2xl font-bold text-gray-800">Orders</h2>
-            <p className="text-gray-600 mt-2">
-              Track customer orders and delivery status here.
-            </p>
+            <IncomingVendorOrders />
           </div>
         );
       default:

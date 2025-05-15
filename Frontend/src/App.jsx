@@ -20,6 +20,8 @@ import Wishlist from "./Components/Wishlist";
 import Cart from "./Components/Cart";
 import SearchResults from "./Components/SearchResults";
 import CustomerOrderList from "./Components/CustomerOrderList";
+import IncomingVendorOrders
+ from "./Components/IncomingVendorOrders";
 function App() {
   const location = useLocation();
 
@@ -60,6 +62,7 @@ function App() {
           <Route path="/vendor-product-list" element={<VendorProductList />} />
           <Route path="/vendor/profile" element={<VendorProfile />} />
           <Route path="/products/:categoryName" element={<ProductList />} />
+          <Route path="/incoming-orders" element={<IncomingVendorOrders />} />
         </Route>
       </Routes>
     </div>
