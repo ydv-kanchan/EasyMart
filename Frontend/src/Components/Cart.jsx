@@ -100,7 +100,7 @@ const Cart = () => {
 
     try {
       console.log("Data being sent to buy route");
-      const res = await fetch("http://localhost:3000/api/customerProducts/buy", {
+      const res = await fetch("http://localhost:3000/api/cart/buy", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,6 +112,7 @@ const Cart = () => {
           paymentMethod: "Cash",
           items: cartItems.map((item) => ({
             item_id: item.item_id,
+            item_name: item.item_name,
             quantity: item.quantity,
             price_per_item: item.item_price,
           })),

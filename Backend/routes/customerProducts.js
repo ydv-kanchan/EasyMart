@@ -242,60 +242,7 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
   });
 });
 
-router.post("/buy", validateCustomerToken, (req, res) => {
-  console.log("Buy route hit");
 
-  const { name, address, paymentMethod, items } = req.body;
 
-  if (!name || !address || !paymentMethod || !Array.isArray(items) || items.length === 0) {
-    return res.status(400).json({ error: "Missing required order data" });
-  }
-
-  const total_amount = items.reduce(
-    (sum, item) => sum + item.quantity * item.price_per_item,
-    0
-  );
-
-  // Assuming you have customer id from token middleware, e.g.:
-  const customerId = req.customerId; // or req.user.id depending on your middleware
-
-  const orderQuery = `INSERT INTO orders (customer_name, address, payment_method, total_amount) VALUES (?, ?, ?, ?)`;
-  db.query(orderQuery, [name, address, paymentMethod, total_amount], (err, orderResult) => {
-    if (err) {
-      console.error("Error inserting order:", err);
-      return res.status(500).json({ error: "Failed to place order" });
-    }
-
-    const orderId = orderResult.insertId;
-
-    const orderItemsData = items.map(item => [
-      orderId,
-      item.item_id,
-      item.quantity,
-      item.price_per_item
-    ]);
-
-    const orderItemsQuery = `INSERT INTO order_items (order_id, item_id, quantity, price_per_item) VALUES ?`;
-    db.query(orderItemsQuery, [orderItemsData], (err2) => {
-      if (err2) {
-        console.error("Error inserting order items:", err2);
-        return res.status(500).json({ error: "Failed to place order items" });
-      }
-
-      // NOW delete items from the customer's cart
-      const deleteCartQuery = `DELETE FROM cart WHERE customer_id = ?`;
-      db.query(deleteCartQuery, [customerId], (err3) => {
-        if (err3) {
-          console.error("Error clearing cart after order:", err3);
-          // Optionally: respond with success anyway or fail here
-          return res.status(500).json({ error: "Failed to clear cart after order" });
-        }
-
-        // Success response after everything
-        res.status(201).json({ message: "Order placed successfully", order_id: orderId });
-      });
-    });
-  });
-});
 
 module.exports = router;
