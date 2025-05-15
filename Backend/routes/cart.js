@@ -143,4 +143,65 @@ router.delete("/remove/:item_id", authenticateToken("customer"), (req, res) => {
   );
 });
 
+router.post("/buy", authenticateToken("customer"), (req, res) => {
+  console.log("Buy route hit");
+
+  const { name, address, paymentMethod, items } = req.body;
+
+  if (!name || !address || !paymentMethod || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: "Missing required order data" });
+  }
+
+  const customerId = req.user.id;
+  console.log("Customer id in buy route");
+
+
+  const orderValues = items.map(item => [
+    customerId,
+    item.item_id,
+    item.item_name,
+    item.quantity,
+    item.price_per_item,
+    name,               
+    address,
+    paymentMethod
+  ]);
+
+  console.log(orderValues);
+
+  const insertQuery = `
+    INSERT INTO orders (
+      customer_id,
+      item_id,
+      item_name,
+      quantity,
+      price_per_item,
+      customer_name,
+      address,
+      payment_method
+    ) VALUES ?
+  `;
+
+  db.query(insertQuery, [orderValues], (err, result) => {
+    if (err) {
+      console.error("Error placing order:", err);
+      return res.status(500).json({ error: "Failed to place order" });
+    }
+
+    // Clear the customer's cart
+    const deleteCartQuery = `DELETE FROM cart WHERE customer_id = ?`;
+    db.query(deleteCartQuery, [customerId], (err2) => {
+      if (err2) {
+        console.error("Error clearing cart:", err2);
+        return res.status(500).json({ error: "Order placed, but failed to clear cart" });
+      }
+
+      res.status(201).json({
+        message: "Order placed successfully",
+        order_count: result.affectedRows
+      });
+    });
+  });
+});
+
 module.exports = router;
