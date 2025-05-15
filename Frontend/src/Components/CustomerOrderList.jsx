@@ -89,8 +89,12 @@ const CustomerOrderList = () => {
 
               <div className="ml-4 flex-1">
                 <h3 className="text-lg font-semibold">{order.item_name}</h3>
+                <p className="text-gray-600">Quantity: {order.quantity}</p>
                 <p className="text-gray-600">
-                  ₹{Number(order.item_price).toFixed(2)} × {order.quantity}
+                  Price: ₹
+                  {isNaN(Number(order.item_price))
+                    ? "0.00"
+                    : Number(order.item_price).toFixed(2)}
                 </p>
               </div>
 

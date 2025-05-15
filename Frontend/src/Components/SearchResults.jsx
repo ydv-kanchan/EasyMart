@@ -25,7 +25,7 @@ const SearchResults = () => {
     let url = `http://localhost:3000/api/customerProducts/search/${searchTerm}?`;
 
     if (priceRange.length > 0) {
-      url += `priceRange=${priceRange.join(",")}&`;
+      url += `priceRange=${priceRange.join(",")}&`; // <-- join array into comma-separated string
     }
     if (sortOrder) {
       url += `sortOrder=${sortOrder}&`;
