@@ -2,15 +2,15 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 import CategoryNavbar from "./CategoryNavbar";
-import { FaRedoAlt } from "react-icons/fa"; // FontAwesome Reset Icon
+import SideFilter from "./SideProductFilter"; // Reusable filter component
 
 const ProductList = () => {
   const { categoryName } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [priceRange, setPriceRange] = useState([]); // Track selected price range
-  const [sortOrder, setSortOrder] = useState(""); // Track sorting option
+  const [priceRange, setPriceRange] = useState([]);
+  const [sortOrder, setSortOrder] = useState(""); // keep "" as default means no sorting
 
   const navigate = useNavigate();
 
@@ -23,7 +23,6 @@ const ProductList = () => {
       return;
     }
 
-    // Build query params based on selected filters
     let url = `http://localhost:3000/api/customerProducts/category/${categoryName}?`;
 
     if (priceRange.length > 0) {
@@ -51,109 +50,30 @@ const ProductList = () => {
       });
   }, [categoryName, priceRange, sortOrder]);
 
-  const handlePriceChange = (range) => {
-    setPriceRange((prev) =>
-      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
-    );
-  };
-
-  const handleSortChange = (order) => {
-    setSortOrder(order);
-  };
-
-  const resetFilters = () => {
-    setPriceRange([]); // Reset price range
-    setSortOrder(""); // Reset sort order
-  };
-
-  const formatTitle = (str) =>
-    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
   if (loading) return <p className="text-center py-10">Loading products...</p>;
   if (error) return <p className="text-center text-red-600 py-10">{error}</p>;
 
   return (
     <div className="min-h-screen">
       <CategoryNavbar />
-
-      {/* Page heading */}
       <div className="px-6 py-4 border-b">
-        <h2 className="text-2xl font-bold text-gray-800">
-          {formatTitle(categoryName)} Products
+        <h2 className="text-2xl font-bold text-gray-800 capitalize">
+          {categoryName} Products
         </h2>
       </div>
 
-      {/* Main layout */}
       <div className="flex">
-        <aside className="w-[15%] min-h-screen p-6 bg-white border-r sticky top-[80px] hidden md:block overflow-y-auto">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-xl font-bold text-gray-800 tracking-wide border-b pb-3">
-              Refine Results
-            </h3>
-            {/* Reset Filters Icon */}
-            <FaRedoAlt
-              className="cursor-pointer text-orange-500 hover:text-orange-700 transition text-xl mt-[-10px]" // Updated color and margin
-              onClick={resetFilters}
-              title="Reset Filters"
-            />
-          </div>
+        <SideFilter
+          priceRange={priceRange}
+          sortOrder={sortOrder}
+          onPriceChange={setPriceRange}
+          onSortChange={setSortOrder}
+          onReset={() => {
+            setPriceRange([]);
+            setSortOrder("");
+          }}
+        />
 
-          {/* Price Range */}
-          <div className="mb-10">
-            <h4 className="text-md font-semibold mb-4 text-gray-700 uppercase tracking-wide">
-              Price Range
-            </h4>
-            <div className="flex flex-col gap-4">
-              {["₹0 - ₹500", "₹500 - ₹1000", "Above ₹1000"].map(
-                (range, index) => (
-                  <label
-                    key={index}
-                    className="flex items-center gap-3 text-gray-700 hover:text-orange-500 cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      className="accent-orange-400 w-4 h-4 cursor-pointer"
-                      onChange={() => handlePriceChange(range)}
-                      checked={priceRange.includes(range)} // Keep checkbox state in sync
-                    />
-                    {range}
-                  </label>
-                )
-              )}
-            </div>
-          </div>
-
-          {/* Sorting */}
-          <div className="mb-10">
-            <h4 className="text-md font-semibold mb-4 text-gray-700 uppercase tracking-wide">
-              Sort By
-            </h4>
-            <div className="flex flex-col gap-4">
-              <button
-                className={`border text-gray-700 rounded px-4 py-2 text-sm transition ${
-                  sortOrder === "lowToHigh"
-                    ? "bg-orange-100 border-orange-400"
-                    : "border-orange-300 hover:bg-orange-50 hover:border-orange-400"
-                }`}
-                onClick={() => handleSortChange("lowToHigh")}
-              >
-                Price: Low to High
-              </button>
-              <button
-                className={`border text-gray-700 rounded px-4 py-2 text-sm transition ${
-                  sortOrder === "highToLow"
-                    ? "bg-orange-100 border-orange-400"
-                    : "border-orange-300 hover:bg-orange-50 hover:border-orange-400"
-                }`}
-                onClick={() => handleSortChange("highToLow")}
-              >
-                Price: High to Low
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        {/* Product grid */}
         <main className="w-full md:w-[85%] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.length === 0 ? (
             <div className="col-span-full text-center mt-20">
