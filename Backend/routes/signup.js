@@ -144,11 +144,7 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
     console.log("Request Body in /vendors route:", req.body);
 
-<<<<<<< HEAD
     const storeLogo =req.file ? `/uploads/logo/${req.file.filename}` : null;
-=======
-    const storeLogo = req.file ? `/uploads/logo/${req.file.filename}` : null;
->>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
 
     const categories = req.body.productCategories || [];
     const productCategories = Array.isArray(categories)
@@ -177,16 +173,9 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
         });
       }
 
-<<<<<<< HEAD
       const hashedPassword = await bcrypt.hash(password, 10);
 
 
-=======
-  
-      const hashedPassword = await bcrypt.hash(password, 10);
-
- 
->>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
       const insertSql = `
         INSERT INTO vendors (
           first_name, middle_name, last_name, email, username,
@@ -260,10 +249,7 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           console.log("Vendor inserted with ID:", vendorId);
 
-<<<<<<< HEAD
-=======
    
->>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
           const token = jwt.sign({ email, role: "vendor" }, JWT_SECRET, {
             expiresIn: "1d",
           });

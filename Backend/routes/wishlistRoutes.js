@@ -50,10 +50,6 @@ router.delete("/remove/:item_id", validateCustomerToken, (req, res) => {
   );
 });
 
-<<<<<<< HEAD
-=======
-
->>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
 router.get("/all", validateCustomerToken, (req, res) => {
   const customer_id = req.customer.customer_id;
 

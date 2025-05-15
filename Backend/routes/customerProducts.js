@@ -130,55 +130,7 @@ router.get("/item/:id", (req, res) => {
     });
   });
 
-  router.post("/buy", authenticateToken("customer"), (req, res) => {
-  const { item_id, quantity } = req.body;
-  const customer_id = req.user.id;
 
-  if (!item_id || !quantity) {
-    return res.status(400).json({ message: "Item ID and quantity are required" });
-  }
-
-  db.query(
-    "SELECT item_price, item_stock FROM items WHERE item_id = ?",
-    [item_id],
-    (err, result) => {
-      if (err) return res.status(500).json({ message: "Database error" });
-      if (result.length === 0) return res.status(404).json({ message: "Item not found" });
-
-      const { item_price, item_stock } = result[0];
-
-      if (item_stock < quantity) {
-        return res.status(400).json({ message: "Not enough stock available" });
-      }
-
-      const total_price = item_price * quantity;
-
-      db.query(
-        "INSERT INTO orders (customer_id, item_id, quantity, total_price) VALUES (?, ?, ?, ?)",
-        [customer_id, item_id, quantity, total_price],
-        (err, orderResult) => {
-          if (err) return res.status(500).json({ message: "Failed to place order" });
-
-          
-          db.query(
-            "UPDATE items SET item_stock = item_stock - ? WHERE item_id = ?",
-            [quantity, item_id],
-            (err) => {
-              if (err) {
-                return res.status(500).json({ message: "Order placed, but failed to update stock" });
-              }
-
-              return res.status(201).json({
-                message: "Order placed successfully",
-                order_id: orderResult.insertId,
-              });
-            }
-          );
-        }
-      );
-    }
-  );
-});
 
 router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   const { searchTerm } = req.params;
@@ -209,6 +161,122 @@ router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   });
 });
 
+router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
+  const { categoryName } = req.params;
+  const { priceRange, sortOrder } = req.query; // Get filters from query parameters
 
-  
+  // Start building the query
+  let query = `
+    SELECT 
+      i.item_id, 
+      i.item_name, 
+      i.item_desc, 
+      i.item_price, 
+      i.item_image, 
+      i.item_stock, 
+      c.category_name, 
+      t.item_type_name
+    FROM items i
+    JOIN categories c ON i.category_id = c.category_id
+    JOIN item_types t ON i.item_type_id = t.item_type_id
+    WHERE LOWER(c.category_name) = LOWER(?)
+  `;
+
+  let queryParams = [categoryName];
+
+  // Apply price range filter if provided
+  if (priceRange) {
+    const ranges = priceRange.split(","); // Expect priceRange to be a comma-separated string
+    let priceConditions = [];
+
+    if (ranges.includes("₹0 - ₹500")) {
+      priceConditions.push("i.item_price BETWEEN 0 AND 500");
+    }
+    if (ranges.includes("₹500 - ₹1000")) {
+      priceConditions.push("i.item_price BETWEEN 500 AND 1000");
+    }
+    if (ranges.includes("Above ₹1000")) {
+      priceConditions.push("i.item_price > 1000");
+    }
+
+    if (priceConditions.length > 0) {
+      query += ` AND (${priceConditions.join(" OR ")})`; // Use OR for multiple price ranges
+    }
+  }
+
+  // Apply sorting if provided
+  if (sortOrder === "lowToHigh") {
+    query += " ORDER BY i.item_price ASC";
+  } else if (sortOrder === "highToLow") {
+    query += " ORDER BY i.item_price DESC";
+  } else {
+    query += " ORDER BY i.item_id DESC"; // Default sorting (e.g., by ID)
+  }
+
+  // Run the query
+  db.query(query, queryParams, (err, rows) => {
+    if (err) {
+      console.error("Error fetching products by category:", err);
+      return res.status(500).json({ message: "Failed to fetch products" });
+    }
+    res.status(200).json(rows);
+  });
+});
+
+router.post("/buy", validateCustomerToken, (req, res) => {
+  console.log("Buy route hit");
+
+  const { name, address, paymentMethod, items } = req.body;
+
+  if (!name || !address || !paymentMethod || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: "Missing required order data" });
+  }
+
+  const total_amount = items.reduce(
+    (sum, item) => sum + item.quantity * item.price_per_item,
+    0
+  );
+
+  // Assuming you have customer id from token middleware, e.g.:
+  const customerId = req.customerId; // or req.user.id depending on your middleware
+
+  const orderQuery = `INSERT INTO orders (customer_name, address, payment_method, total_amount) VALUES (?, ?, ?, ?)`;
+  db.query(orderQuery, [name, address, paymentMethod, total_amount], (err, orderResult) => {
+    if (err) {
+      console.error("Error inserting order:", err);
+      return res.status(500).json({ error: "Failed to place order" });
+    }
+
+    const orderId = orderResult.insertId;
+
+    const orderItemsData = items.map(item => [
+      orderId,
+      item.item_id,
+      item.quantity,
+      item.price_per_item
+    ]);
+
+    const orderItemsQuery = `INSERT INTO order_items (order_id, item_id, quantity, price_per_item) VALUES ?`;
+    db.query(orderItemsQuery, [orderItemsData], (err2) => {
+      if (err2) {
+        console.error("Error inserting order items:", err2);
+        return res.status(500).json({ error: "Failed to place order items" });
+      }
+
+      // NOW delete items from the customer's cart
+      const deleteCartQuery = `DELETE FROM cart WHERE customer_id = ?`;
+      db.query(deleteCartQuery, [customerId], (err3) => {
+        if (err3) {
+          console.error("Error clearing cart after order:", err3);
+          // Optionally: respond with success anyway or fail here
+          return res.status(500).json({ error: "Failed to clear cart after order" });
+        }
+
+        // Success response after everything
+        res.status(201).json({ message: "Order placed successfully", order_id: orderId });
+      });
+    });
+  });
+});
+
 module.exports = router;

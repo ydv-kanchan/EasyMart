@@ -36,8 +36,8 @@ const ProductList = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
@@ -72,36 +72,111 @@ const ProductList = () => {
   if (error) return <p className="text-center text-red-600 py-10">{error}</p>;
 
   return (
-    <div className="min-h-screen p-6 space-y-6">
-      
-      <h2 className="text-2xl font-bold text-gray-800">
-        {formatTitle(categoryName)} Products
-      </h2>
+    <div className="min-h-screen">
+      <CategoryNavbar />
 
-      
-      {products.length === 0 ? (
-        <div className="text-center mt-20">
-          <h3 className="text-lg text-gray-600">No products found in this category.</h3>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-32">
-          {products.map((product) => (
-            <div
-              key={product.item_id}
-              className="bg-white border rounded-2xl p-4 shadow hover:shadow-md transition"
-              onClick={() => navigate(`/product/${product.item_id}`)}
-            >
-              <img
-                src={`http://localhost:3000${product.item_image}`}
-                alt={product.item_name}
-                className="w-full h-64 object-cover rounded-xl mb-3"
-              />
-              <h3 className="text-lg font-semibold text-gray-700">{product.item_name}</h3>
-              <p className="text-sm text-gray-500 mt-1">₹{product.item_price}</p>
+      <div className="px-6 py-4 border-b">
+        <h2 className="text-2xl font-bold text-gray-700">
+          {formatTitle(categoryName)} Products
+        </h2>
+      </div>
+
+      <div className="flex">
+        {/* Sidebar Filters */}
+        <aside className="w-[15%] min-h-screen p-5 border-r sticky top-0 hidden md:block overflow-y-auto">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold text-gray-800 tracking-wide border-b pb-3">
+              Refine Results
+            </h3>
+            <FaRedoAlt
+              className="cursor-pointer text-orange-500 text-xl mt-[-10px]"
+              onClick={resetFilters}
+              title="Reset"
+            />
+          </div>
+
+          <div className="mb-7">
+            <h4 className="text-md font-semibold mb-4 text-black-700 uppercase">
+              Price Range
+            </h4>
+            <div className="flex flex-col gap-4">
+              {["₹0 - ₹500", "₹500 - ₹1000", "Above ₹1000"].map((range, index) => (
+                <label
+                  key={index}
+                  className="flex items-center gap-3 text-gray-700 hover:text-orange-500 cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    className="accent-orange-400 w-4 h-4 cursor-pointer"
+                    onChange={() => handlePriceChange(range)}
+                    checked={priceRange.includes(range)}
+                  />
+                  {range}
+                </label>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+
+          <div className="mb-10">
+            <h4 className="text-md font-semibold mb-4 text-black-700 uppercase">
+              Sort By
+            </h4>
+            <div className="flex flex-col gap-4">
+              <button
+                className={`border text-gray-700 rounded px-4 py-2 text-sm transition ${
+                  sortOrder === "lowToHigh"
+                    ? "bg-orange-100 border-orange-400"
+                    : "border-orange-300 hover:bg-orange-50 hover:border-orange-400"
+                }`}
+                onClick={() => handleSortChange("lowToHigh")}
+              >
+                Price: Low to High
+              </button>
+              <button
+                className={`border text-gray-700 rounded px-4 py-2 text-sm transition ${
+                  sortOrder === "highToLow"
+                    ? "bg-orange-100 border-orange-400"
+                    : "border-orange-300 hover:bg-orange-50 hover:border-orange-400"
+                }`}
+                onClick={() => handleSortChange("highToLow")}
+              >
+                Price: High to Low
+              </button>
+            </div>
+          </div>
+        </aside>
+
+        {/* Products Grid */}
+        <main className="w-full md:w-[85%] p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {products.length === 0 ? (
+            <div className="col-span-full text-center mt-20">
+              <h3 className="text-lg text-gray-600">
+                No products found in this category.
+              </h3>
+            </div>
+          ) : (
+            products.map((product) => (
+              <div
+                key={product.item_id}
+                className="bg-white border rounded-2xl p-4 shadow hover:shadow-md transition cursor-pointer"
+                onClick={() => navigate(`/product/${product.item_id}`)}
+              >
+                <img
+                  src={`http://localhost:3000${product.item_image}`}
+                  alt={product.item_name}
+                  className="w-full h-64 object-cover rounded-xl mb-3"
+                />
+                <h3 className="text-lg font-semibold text-gray-700">
+                  {product.item_name}
+                </h3>
+                <p className="text-sm text-gray-500 mt-1">
+                  ₹{product.item_price}
+                </p>
+              </div>
+            ))
+          )}
+        </main>
+      </div>
 
       <Footer />
     </div>
