@@ -9,7 +9,7 @@ const Home = () => {
     <div>
       <CategoryNavbar />
       <Slider />
-      <TopPicks/>
+      <TopPicks />
       <Footer />
     </div>
   );

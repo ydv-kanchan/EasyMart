@@ -37,7 +37,10 @@ const Navbar2 = () => {
       <div className="max-w-[1200px] mx-auto px-4 py-0 flex items-center justify-between">
         <div className="flex items-center justify-center w-full gap-[.5rem]">
           {/* Logo */}
-          <div className="h-20 cursor-pointer" onClick={() => navigate("/home")}>
+          <div
+            className="h-20 cursor-pointer"
+            onClick={() => navigate("/home")}
+          >
             <img src="/logo.png" alt="Logo" className="h-full w-full" />
           </div>
 
@@ -75,13 +78,22 @@ const Navbar2 = () => {
                 isDropdownOpen ? "block" : "hidden"
               }`}
             >
-              <Link to="/profile" className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100">
+              <Link
+                to="/profile"
+                className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100"
+              >
                 My Profile
               </Link>
-              <Link to="/orders" className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100">
+              <Link
+                to="/profile?tab=orders"
+                className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100"
+              >
                 Orders
               </Link>
-              <Link to="/wishlist" className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100">
+              <Link
+                to="/wishlist"
+                className="block px-4 py-3 text-sm text-gray-800 hover:bg-gray-100"
+              >
                 Wishlist
               </Link>
               <button
@@ -93,7 +105,6 @@ const Navbar2 = () => {
             </div>
           </div>
 
-      
           <Link
             to="/cart"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"
@@ -102,7 +113,6 @@ const Navbar2 = () => {
             Cart
           </Link>
 
-         
           <Link
             to="/signup/vendor"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"

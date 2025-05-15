@@ -1,6 +1,6 @@
-
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import CustomerOrderList from "./CustomerOrderList";
 import {
   FiUser,
   FiBox,
@@ -28,7 +28,8 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [selectedTab, setSelectedTab] = useState("profile");
+  const [searchParams] = useSearchParams();
+  const selectedTab = searchParams.get("tab") || "profile";
 
   const handleLogout = async () => {
     const confirmLogout = window.confirm("Are you sure you want to logout?");
@@ -51,12 +52,7 @@ const Profile = () => {
       case "profile":
         return <CustomerProfile />;
       case "orders":
-        return (
-          <div className="p-6 w-full">
-            <h2 className="text-xl font-bold text-gray-800">Your Orders</h2>
-            <p className="text-gray-600 mt-2">No recent orders yet.</p>
-          </div>
-        );
+        return <CustomerOrderList />;
       case "wishlist":
         return <Wishlist />;
       case "cart":
@@ -75,25 +71,25 @@ const Profile = () => {
           icon={FiUser}
           label="Profile"
           active={selectedTab === "profile"}
-          onClick={() => setSelectedTab("profile")}
+          onClick={() => navigate("/profile?tab=profile")}
         />
         <SidebarItem
           icon={FiBox}
           label="Orders"
           active={selectedTab === "orders"}
-          onClick={() => setSelectedTab("orders")}
+          onClick={() => navigate("/profile?tab=orders")}
         />
         <SidebarItem
           icon={FiHeart}
           label="Wishlist"
           active={selectedTab === "wishlist"}
-          onClick={() => setSelectedTab("wishlist")}
+          onClick={() => navigate("/profile?tab=wishlist")}
         />
         <SidebarItem
           icon={FiShoppingCart}
           label="Cart"
           active={selectedTab === "cart"}
-          onClick={() => setSelectedTab("cart")}
+          onClick={() => navigate("/profile?tab=cart")}
         />
         <SidebarItem
           icon={FiLogOut}

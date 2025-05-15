@@ -174,8 +174,7 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
       }
 
       const hashedPassword = await bcrypt.hash(password, 10);
-
-
+ 
       const insertSql = `
         INSERT INTO vendors (
           first_name, middle_name, last_name, email, username,

@@ -53,11 +53,10 @@ const handleLogin = (req, res, userType, idField) => {
 
       res.cookie(cookieName, token, {
         httpOnly: true,
-        secure: false, 
+        secure: false,
         sameSite: "Lax",
-        maxAge: 30 * 60 * 1000, 
+        maxAge: 50 * 60 * 1000,
       });
-
       res.status(200).json({
         message: "Login successful",
         token, 

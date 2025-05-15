@@ -4,11 +4,30 @@ const db = require("../config/db");
 const validateCustomerToken = require("../middleware/validateCustomerToken");
 const authenticateToken = require("../middleware/authenticateToken");
 
+// Helper function to build price range conditions
+function buildPriceConditions(priceRange) {
+  const ranges = priceRange.split(",");
+  let priceConditions = [];
+
+  if (ranges.includes("₹0 - ₹500")) {
+    priceConditions.push("i.item_price BETWEEN 0 AND 500");
+  }
+  if (ranges.includes("₹500 - ₹1000")) {
+    priceConditions.push("i.item_price BETWEEN 500 AND 1000");
+  }
+  if (ranges.includes("Above ₹1000")) {
+    priceConditions.push("i.item_price > 1000");
+  }
+  return priceConditions.length > 0
+    ? ` AND (${priceConditions.join(" OR ")})`
+    : "";
+}
+
+// Route: Get products by category with filtering & sorting
 router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
   const { categoryName } = req.params;
-  const { priceRange, sortOrder } = req.query; // Get filters from query parameters
+  const { priceRange, sortOrder } = req.query;
 
-  // Start building the query
   let query = `
     SELECT 
       i.item_id, 
@@ -27,36 +46,18 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
 
   let queryParams = [categoryName];
 
-  // Apply price range filter if provided
   if (priceRange) {
-    const ranges = priceRange.split(","); // Expect priceRange to be a comma-separated string
-    let priceConditions = [];
-
-    if (ranges.includes("₹0 - ₹500")) {
-      priceConditions.push("i.item_price BETWEEN 0 AND 500");
-    }
-    if (ranges.includes("₹500 - ₹1000")) {
-      priceConditions.push("i.item_price BETWEEN 500 AND 1000");
-    }
-    if (ranges.includes("Above ₹1000")) {
-      priceConditions.push("i.item_price > 1000");
-    }
-
-    if (priceConditions.length > 0) {
-      query += ` AND (${priceConditions.join(" OR ")})`; // Use OR for multiple price ranges
-    }
+    query += buildPriceConditions(priceRange);
   }
 
-  // Apply sorting if provided
   if (sortOrder === "lowToHigh") {
     query += " ORDER BY i.item_price ASC";
   } else if (sortOrder === "highToLow") {
     query += " ORDER BY i.item_price DESC";
   } else {
-    query += " ORDER BY i.item_id DESC"; // Default sorting (e.g., by ID)
+    query += " ORDER BY i.item_id DESC";
   }
 
-  // Run the query
   db.query(query, queryParams, (err, rows) => {
     if (err) {
       console.error("Error fetching products by category:", err);
@@ -66,6 +67,7 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
   });
 });
 
+// Route: Get product details by ID
 router.get("/item/:id", (req, res) => {
   const { id } = req.params;
 
@@ -98,8 +100,9 @@ router.get("/item/:id", (req, res) => {
   });
 });
 
-  router.get("/top-picks", (req, res) => {
-    const query = `
+// Route: Top picks (random 12 items in groups)
+router.get("/top-picks", (req, res) => {
+  const query = `
       SELECT 
         items.item_id,
         items.item_name AS name,
@@ -113,30 +116,32 @@ router.get("/item/:id", (req, res) => {
       JOIN item_types ON items.item_type_id = item_types.item_type_id
       ORDER BY RAND() LIMIT 12
     `;
-  
-    db.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching top picks:", err);
-        return res.status(500).json({ message: "Failed to fetch top picks" });
-      }
-  
-      const groups = [
-        { title: 'Editor’s Picks', items: results.slice(0, 4) },
-        { title: 'You’ll Love These', items: results.slice(4, 8) },
-        { title: 'Discover More', items: results.slice(8, 12) },
-      ];
-  
-      res.status(200).json(groups);
-    });
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching top picks:", err);
+      return res.status(500).json({ message: "Failed to fetch top picks" });
+    }
+
+    const groups = [
+      { title: "Editor’s Picks", items: results.slice(0, 4) },
+      { title: "You’ll Love These", items: results.slice(4, 8) },
+      { title: "Discover More", items: results.slice(8, 12) },
+    ];
+
+    res.status(200).json(groups);
   });
+});
 
 
 
+// Route: Search products with filtering & sorting (same as category)
 router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   const { searchTerm } = req.params;
+  const { priceRange, sortOrder } = req.query;
   const searchValue = `%${searchTerm.toLowerCase()}%`;
 
-  const query = `
+  let query = `
     SELECT 
       i.item_id, 
       i.item_name, 
@@ -152,7 +157,21 @@ router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
     WHERE LOWER(i.item_name) LIKE ? OR LOWER(c.category_name) LIKE ?
   `;
 
-  db.query(query, [searchValue, searchValue], (err, rows) => {
+  let queryParams = [searchValue, searchValue];
+
+  if (priceRange) {
+    query += buildPriceConditions(priceRange);
+  }
+
+  if (sortOrder === "lowToHigh") {
+    query += " ORDER BY i.item_price ASC";
+  } else if (sortOrder === "highToLow") {
+    query += " ORDER BY i.item_price DESC";
+  } else {
+    query += " ORDER BY i.item_id DESC";
+  }
+
+  db.query(query, queryParams, (err, rows) => {
     if (err) {
       console.error("Search error:", err);
       return res.status(500).json({ message: "Search failed" });
