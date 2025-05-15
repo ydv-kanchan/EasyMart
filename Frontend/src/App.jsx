@@ -18,6 +18,7 @@ import ProductList from "./Components/ProductList";
 import ProductProfile from "./Components/ProductProfile";
 import Wishlist from "./Components/Wishlist";
 import Cart from "./Components/Cart";
+import SearchResults from "./Components/SearchResults";
 function App() {
   const location = useLocation();
 
@@ -48,6 +49,7 @@ function App() {
           <Route path="/product/:id" element={<ProductProfile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/search/:searchTerm" element={<SearchResults />} />
         </Route>
 
         <Route element={<VendorLayout />}>

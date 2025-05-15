@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
 
-const ProductList = () => {
-  const { categoryName } = useParams();
+const SearchResults = () => {
+  const { searchTerm } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -19,17 +19,15 @@ const ProductList = () => {
       return;
     }
 
-    fetch(`http://localhost:3000/api/customerProducts/category/${categoryName}`, {
+    fetch(`http://localhost:3000/api/customerProducts/search/${searchTerm}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}` 
-      }
+        Authorization: `Bearer ${token}`,
+      },
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Data in product list");
-        console.log(data);
         setProducts(data);
         setLoading(false);
       })
@@ -37,24 +35,20 @@ const ProductList = () => {
         setError(err.message || "Something went wrong.");
         setLoading(false);
       });
-  }, [categoryName]);
+  }, [searchTerm]);
 
-  const formatTitle = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-
-  if (loading) return <p className="text-center py-10">Loading products...</p>;
+  if (loading) return <p className="text-center py-10">Searching for products...</p>;
   if (error) return <p className="text-center text-red-600 py-10">{error}</p>;
 
   return (
     <div className="min-h-screen p-6 space-y-6">
-      
       <h2 className="text-2xl font-bold text-gray-800">
-        {formatTitle(categoryName)} Products
+        Search Results for "{decodeURIComponent(searchTerm)}"
       </h2>
 
-      
       {products.length === 0 ? (
         <div className="text-center mt-20">
-          <h3 className="text-lg text-gray-600">No products found in this category.</h3>
+          <h3 className="text-lg text-gray-600">No products found for this search.</h3>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-32">
@@ -81,4 +75,4 @@ const ProductList = () => {
   );
 };
 
-export default ProductList;
+export default SearchResults;

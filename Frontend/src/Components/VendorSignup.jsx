@@ -48,7 +48,6 @@ const VendorSignup = () => {
   const handleSubmit = async () => {
     try {
       const payload = new FormData();
-      // Append form data fields
       payload.append("first_name", formData.first_name);
       payload.append("middle_name", formData.middle_name);
       payload.append("last_name", formData.last_name);

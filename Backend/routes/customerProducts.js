@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const db = require("../config/db");
 const validateCustomerToken = require("../middleware/validateCustomerToken");
+const authenticateToken = require("../middleware/authenticateToken");
 
 router.get("/category/:categoryName",validateCustomerToken,(req, res) => {
     const { categoryName } = req.params;
@@ -97,5 +98,86 @@ router.get("/category/:categoryName",validateCustomerToken,(req, res) => {
       res.status(200).json(groups);
     });
   });
+
+  router.post("/buy", authenticateToken("customer"), (req, res) => {
+  const { item_id, quantity } = req.body;
+  const customer_id = req.user.id;
+
+  if (!item_id || !quantity) {
+    return res.status(400).json({ message: "Item ID and quantity are required" });
+  }
+
+  db.query(
+    "SELECT item_price, item_stock FROM items WHERE item_id = ?",
+    [item_id],
+    (err, result) => {
+      if (err) return res.status(500).json({ message: "Database error" });
+      if (result.length === 0) return res.status(404).json({ message: "Item not found" });
+
+      const { item_price, item_stock } = result[0];
+
+      if (item_stock < quantity) {
+        return res.status(400).json({ message: "Not enough stock available" });
+      }
+
+      const total_price = item_price * quantity;
+
+      db.query(
+        "INSERT INTO orders (customer_id, item_id, quantity, total_price) VALUES (?, ?, ?, ?)",
+        [customer_id, item_id, quantity, total_price],
+        (err, orderResult) => {
+          if (err) return res.status(500).json({ message: "Failed to place order" });
+
+          
+          db.query(
+            "UPDATE items SET item_stock = item_stock - ? WHERE item_id = ?",
+            [quantity, item_id],
+            (err) => {
+              if (err) {
+                return res.status(500).json({ message: "Order placed, but failed to update stock" });
+              }
+
+              return res.status(201).json({
+                message: "Order placed successfully",
+                order_id: orderResult.insertId,
+              });
+            }
+          );
+        }
+      );
+    }
+  );
+});
+
+router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
+  const { searchTerm } = req.params;
+  const searchValue = `%${searchTerm.toLowerCase()}%`;
+
+  const query = `
+    SELECT 
+      i.item_id, 
+      i.item_name, 
+      i.item_desc, 
+      i.item_price, 
+      i.item_image, 
+      i.item_stock, 
+      c.category_name, 
+      t.item_type_name
+    FROM items i
+    JOIN categories c ON i.category_id = c.category_id
+    JOIN item_types t ON i.item_type_id = t.item_type_id
+    WHERE LOWER(i.item_name) LIKE ? OR LOWER(c.category_name) LIKE ?
+  `;
+
+  db.query(query, [searchValue, searchValue], (err, rows) => {
+    if (err) {
+      console.error("Search error:", err);
+      return res.status(500).json({ message: "Search failed" });
+    }
+    res.status(200).json(rows);
+  });
+});
+
+
   
 module.exports = router;

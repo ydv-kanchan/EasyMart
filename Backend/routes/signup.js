@@ -146,10 +146,8 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
     console.log("Request Body in /vendors route:", req.body);
 
-    // File upload
     const storeLogo =req.file ? `/uploads/logo/${req.file.filename}` : null;
 
-    // Product categories (can be string or array)
     const categories = req.body.productCategories || [];
     const productCategories = Array.isArray(categories)
       ? categories
@@ -178,10 +176,9 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
         });
       }
 
-      // Hash the password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Insert vendor details
+
       const insertSql = `
         INSERT INTO vendors (
           first_name, middle_name, last_name, email, username,
@@ -253,14 +250,12 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           console.log("Vendor inserted with ID:", vendorId);
 
-          // Generate email verification token
           const token = jwt.sign({ email, role: "vendor" }, JWT_SECRET, {
             expiresIn: "1d",
           });
 
           const verifyURL = `http://localhost:3000/api/verify/vendor?token=${token}`;
 
-          // Send verification email
           await transporter.sendMail({
             from: `"EasyMart" <${process.env.EMAIL}>`,
             to: email,

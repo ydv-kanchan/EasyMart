@@ -50,7 +50,6 @@ router.delete("/remove/:item_id", validateCustomerToken, (req, res) => {
   );
 });
 
-// Route to get all items in the wishlist
 router.get("/all", validateCustomerToken, (req, res) => {
   const customer_id = req.customer.customer_id;
 
