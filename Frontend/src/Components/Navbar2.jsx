@@ -33,7 +33,7 @@ const Navbar2 = () => {
   };
 
   return (
-    <div className="w-full bg-white shadow">
+    <div className="w-full bg-white shadow fixed top-0 z-50">
       <div className="max-w-[1200px] mx-auto px-4 py-0 flex items-center justify-between">
         <div className="flex items-center justify-center w-full gap-[.5rem]">
           {/* Logo */}
@@ -93,7 +93,7 @@ const Navbar2 = () => {
             </div>
           </div>
 
-          {/* Cart Button */}
+      
           <Link
             to="/cart"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"
@@ -102,7 +102,7 @@ const Navbar2 = () => {
             Cart
           </Link>
 
-          {/* Become a Seller */}
+         
           <Link
             to="/signup/vendor"
             className="w-44 h-12 px-4 text-m border border-gray-100 rounded-md text-black font-medium hover:bg-gray-100 transition flex items-center justify-center"

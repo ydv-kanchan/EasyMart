@@ -16,9 +16,9 @@ router.get("/verify-email", (req, res) => {
 
   try {
     const { email } = jwt.verify(token, JWT_SECRET);
-    console.log("Verifying email:", email); // 🔍 Log the email being verified
+    console.log("Verifying email:", email); 
 
-    // Update the user's verification status in the database
+
     const updateSql = "UPDATE customers SET is_verified = true WHERE email = ?";
     db.query(updateSql, [email], (err, result) => {
       if (err) {
@@ -30,8 +30,8 @@ router.get("/verify-email", (req, res) => {
         return res.status(404).send("User not found.");
       }
 
-      // Redirect to frontend success page after successful verification
-      res.redirect("http://localhost:3000/profile"); // 🔁 Change this if your frontend URL is different
+    
+      res.redirect("http://localhost:3000/profile"); 
     });
   } catch (err) {
     console.error("Invalid or expired token:", err);

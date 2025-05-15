@@ -17,7 +17,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Email transporter setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -26,22 +25,21 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Customer Signup Route
 router.post("/customers", validateSignup("customer"), async (req, res) => {
   console.log("Received Customer Data:", req.body);
 
   try {
     const {
       firstName,
-      middleName, // Optional
-      lastName, // Optional
+      middleName,
+      lastName,
       email,
       username,
       password,
       confirmPassword,
       phone,
       houseNo,
-      street, // Added street separately
+      street,
       landmark,
       city,
       state,
@@ -146,7 +144,11 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
     console.log("Request Body in /vendors route:", req.body);
 
+<<<<<<< HEAD
     const storeLogo =req.file ? `/uploads/logo/${req.file.filename}` : null;
+=======
+    const storeLogo = req.file ? `/uploads/logo/${req.file.filename}` : null;
+>>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
 
     const categories = req.body.productCategories || [];
     const productCategories = Array.isArray(categories)
@@ -157,7 +159,6 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
       (cat) => typeof cat === "string" && cat.trim() !== ""
     );
 
-    // Check if username or email already exists
     const checkSql = "SELECT * FROM vendors WHERE username = ? OR email = ?";
     db.query(checkSql, [username, email], async (err, result) => {
       if (err) {
@@ -176,9 +177,16 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
         });
       }
 
+<<<<<<< HEAD
       const hashedPassword = await bcrypt.hash(password, 10);
 
 
+=======
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+ 
+>>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
       const insertSql = `
         INSERT INTO vendors (
           first_name, middle_name, last_name, email, username,
@@ -212,8 +220,10 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           const vendorId = result.insertId;
 
-          const getCategoryIdSql = "SELECT category_id FROM categories WHERE category_name = ?";
-          const insertVendorCategorySql = "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
+          const getCategoryIdSql =
+            "SELECT category_id FROM categories WHERE category_name = ?";
+          const insertVendorCategorySql =
+            "INSERT INTO vendor_categories (vendor_id, category_id) VALUES (?, ?)";
 
           for (let i = 0; i < cleanCategories.length; i++) {
             const catName = cleanCategories[i];
@@ -250,6 +260,10 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
 
           console.log("Vendor inserted with ID:", vendorId);
 
+<<<<<<< HEAD
+=======
+   
+>>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
           const token = jwt.sign({ email, role: "vendor" }, JWT_SECRET, {
             expiresIn: "1d",
           });

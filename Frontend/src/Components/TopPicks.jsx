@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const TopPicks = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // Adjust key name if different
+    const token = localStorage.getItem("token");
 
     axios
-      .get('http://localhost:3000/api/customerProducts/top-picks', {
+      .get("http://localhost:3000/api/customerProducts/top-picks", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -21,7 +21,7 @@ const TopPicks = () => {
         setCategories(res.data);
       })
       .catch((err) => {
-        console.error('Failed to fetch top picks:', err);
+        console.error("Failed to fetch top picks:", err);
       });
   }, []);
 
@@ -47,9 +47,12 @@ const TopPicks = () => {
                   alt={item.name}
                   className="w-full object-cover h-48"
                 />
-                <p className="text-m font-medium text-gray-700 mt-2">{item.name}</p>
-                <p className="text-m font-medium text-gray-700 mt-2">{item.price}</p>
-                {/* <p className="text-green-600 text-xs">{item.sub}</p> */}
+                <p className="text-m font-medium text-gray-700 mt-2">
+                  {item.name}
+                </p>
+                <p className="text-m font-medium text-gray-700 mt-2">
+                  {item.price}
+                </p>
               </div>
             ))}
           </div>

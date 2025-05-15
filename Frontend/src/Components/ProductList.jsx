@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Footer from "./Footer";
+import CategoryNavbar from "./CategoryNavbar";
+import { FaRedoAlt } from "react-icons/fa";
 
 const ProductList = () => {
   const { categoryName } = useParams();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [priceRange, setPriceRange] = useState([]);
+  const [sortOrder, setSortOrder] = useState("");
 
   const navigate = useNavigate();
 
@@ -19,7 +23,16 @@ const ProductList = () => {
       return;
     }
 
-    fetch(`http://localhost:3000/api/customerProducts/category/${categoryName}`, {
+    let url = `http://localhost:3000/api/customerProducts/category/${categoryName}?`;
+
+    if (priceRange.length > 0) {
+      url += `priceRange=${priceRange.join(",")}&`;
+    }
+    if (sortOrder) {
+      url += `sortOrder=${sortOrder}&`;
+    }
+
+    fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -28,8 +41,6 @@ const ProductList = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("Data in product list");
-        console.log(data);
         setProducts(data);
         setLoading(false);
       })
@@ -37,9 +48,25 @@ const ProductList = () => {
         setError(err.message || "Something went wrong.");
         setLoading(false);
       });
-  }, [categoryName]);
+  }, [categoryName, priceRange, sortOrder]);
 
-  const formatTitle = (str) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  const handlePriceChange = (range) => {
+    setPriceRange((prev) =>
+      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
+    );
+  };
+
+  const handleSortChange = (order) => {
+    setSortOrder(order);
+  };
+
+  const resetFilters = () => {
+    setPriceRange([]);
+    setSortOrder("");
+  };
+
+  const formatTitle = (str) =>
+    str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
   if (loading) return <p className="text-center py-10">Loading products...</p>;
   if (error) return <p className="text-center text-red-600 py-10">{error}</p>;

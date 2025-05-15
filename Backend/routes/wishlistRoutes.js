@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require("../config/db");
 const validateCustomerToken = require("../middleware/validateCustomerToken");
 
-// Route to add item to wishlist
+
 router.post("/add", validateCustomerToken, (req, res) => {
   const { item_id } = req.body; 
   const customer_id = req.customer.customer_id;
@@ -14,7 +14,7 @@ router.post("/add", validateCustomerToken, (req, res) => {
 
 
   db.query(
-    "INSERT IGNORE INTO wishlist (customer_id, item_id) VALUES (?, ?)", // Corrected to item_id
+    "INSERT IGNORE INTO wishlist (customer_id, item_id) VALUES (?, ?)", 
     [customer_id, item_id],
     (err, result) => {
       if (err) {
@@ -27,7 +27,7 @@ router.post("/add", validateCustomerToken, (req, res) => {
   );
 });
 
-// Route to remove item from wishlist
+
 router.delete("/remove/:item_id", validateCustomerToken, (req, res) => {
   const { item_id } = req.params; 
   const customer_id = req.customer.customer_id;
@@ -50,6 +50,10 @@ router.delete("/remove/:item_id", validateCustomerToken, (req, res) => {
   );
 });
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
 router.get("/all", validateCustomerToken, (req, res) => {
   const customer_id = req.customer.customer_id;
 

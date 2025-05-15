@@ -6,10 +6,8 @@ const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
-// 🌐 Send password reset email
 router.post("/forgot-password", async (req, res) => {
   const { email, userType } = req.body;
-  console.log("📩 Request Body:", req.body); // Debug
 
   if (
     !email ||
@@ -33,7 +31,7 @@ router.post("/forgot-password", async (req, res) => {
     }
 
     const token = crypto.randomBytes(32).toString("hex");
-    const expiry = Date.now() + 3600000; // 1 hour
+    const expiry = Date.now() + 3600000;
 
     await db
       .promise()
@@ -53,12 +51,11 @@ router.post("/forgot-password", async (req, res) => {
       },
     });
 
-    // Check if transporter is working
     transporter.verify((err, success) => {
       if (err) {
-        console.error("❌ Transporter Verification Error:", err);
+        console.error("Transporter Verification Error:", err);
       } else {
-        console.log("✅ Transporter verified successfully:", success);
+        console.log("Transporter verified successfully:", success);
       }
     });
 
@@ -76,12 +73,11 @@ router.post("/forgot-password", async (req, res) => {
 
     res.json({ message: "Reset link sent to your email." });
   } catch (err) {
-    console.error("💥 Forgot Password Error:", err);
+    console.error("Forgot Password Error:", err);
     res.status(500).json({ message: "Server error.", error: err.message });
   }
 });
 
-// 🔐 Handle password reset using token
 router.post("/reset-password/:token", async (req, res) => {
   const { token } = req.params;
   const { password, userType } = req.body;
@@ -122,7 +118,7 @@ router.post("/reset-password/:token", async (req, res) => {
 
     res.json({ message: "Password updated successfully." });
   } catch (err) {
-    console.error("💥 Reset Password Error:", err.message);
+    console.error("Reset Password Error:", err.message);
     res.status(500).json({ message: "Server error.", error: err.message });
   }
 });

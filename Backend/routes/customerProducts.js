@@ -4,68 +4,99 @@ const db = require("../config/db");
 const validateCustomerToken = require("../middleware/validateCustomerToken");
 const authenticateToken = require("../middleware/authenticateToken");
 
-router.get("/category/:categoryName",validateCustomerToken,(req, res) => {
-    const { categoryName } = req.params;
-  
-    const query = `
-      SELECT 
-        i.item_id, 
-        i.item_name, 
-        i.item_desc, 
-        i.item_price, 
-        i.item_image, 
-        i.item_stock, 
-        c.category_name, 
-        t.item_type_name
-      FROM items i
-      JOIN categories c ON i.category_id = c.category_id
-      JOIN item_types t ON i.item_type_id = t.item_type_id
-      WHERE LOWER(c.category_name) = LOWER(?)
-    `;
-  
-    db.query(query, [categoryName], (err, rows, fields) => {
-      if (err) {
-        console.error("Error fetching products by category:", err);
-        return res.status(500).json({ message: "Failed to fetch products" });
-      }
-  
-      res.status(200).json(rows); 
-    });
-  });
+router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
+  const { categoryName } = req.params;
+  const { priceRange, sortOrder } = req.query; // Get filters from query parameters
 
-  router.get("/item/:id", (req, res) => {
-    const { id } = req.params;
-  
-    const query = `
-      SELECT 
-        i.item_id, 
-        i.item_name, 
-        i.item_desc AS item_description,
-        i.item_price, 
-        i.item_image, 
-        i.item_stock, 
-        c.category_name AS item_category,
-        t.item_type_name
-      FROM items i
-      JOIN categories c ON i.category_id = c.category_id
-      JOIN item_types t ON i.item_type_id = t.item_type_id
-      WHERE i.item_id = ?
-    `;
-  
-    db.query(query, [id], (err, results) => {
-      if (err) {
-        console.error("Error fetching product by ID:", err);
-        return res.status(500).json({ message: "Failed to fetch product" });
-      }
-  
-      if (results.length === 0) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-  
-      res.status(200).json(results[0]); 
-    });
-  });
+  // Start building the query
+  let query = `
+    SELECT 
+      i.item_id, 
+      i.item_name, 
+      i.item_desc, 
+      i.item_price, 
+      i.item_image, 
+      i.item_stock, 
+      c.category_name, 
+      t.item_type_name
+    FROM items i
+    JOIN categories c ON i.category_id = c.category_id
+    JOIN item_types t ON i.item_type_id = t.item_type_id
+    WHERE LOWER(c.category_name) = LOWER(?)
+  `;
 
+  let queryParams = [categoryName];
+
+  // Apply price range filter if provided
+  if (priceRange) {
+    const ranges = priceRange.split(","); // Expect priceRange to be a comma-separated string
+    let priceConditions = [];
+
+    if (ranges.includes("₹0 - ₹500")) {
+      priceConditions.push("i.item_price BETWEEN 0 AND 500");
+    }
+    if (ranges.includes("₹500 - ₹1000")) {
+      priceConditions.push("i.item_price BETWEEN 500 AND 1000");
+    }
+    if (ranges.includes("Above ₹1000")) {
+      priceConditions.push("i.item_price > 1000");
+    }
+
+    if (priceConditions.length > 0) {
+      query += ` AND (${priceConditions.join(" OR ")})`; // Use OR for multiple price ranges
+    }
+  }
+
+  // Apply sorting if provided
+  if (sortOrder === "lowToHigh") {
+    query += " ORDER BY i.item_price ASC";
+  } else if (sortOrder === "highToLow") {
+    query += " ORDER BY i.item_price DESC";
+  } else {
+    query += " ORDER BY i.item_id DESC"; // Default sorting (e.g., by ID)
+  }
+
+  // Run the query
+  db.query(query, queryParams, (err, rows) => {
+    if (err) {
+      console.error("Error fetching products by category:", err);
+      return res.status(500).json({ message: "Failed to fetch products" });
+    }
+    res.status(200).json(rows);
+  });
+});
+
+router.get("/item/:id", (req, res) => {
+  const { id } = req.params;
+
+  const query = `
+    SELECT 
+      i.item_id, 
+      i.item_name, 
+      i.item_desc AS item_description,
+      i.item_price, 
+      i.item_image, 
+      i.item_stock, 
+      c.category_name AS item_category,
+      t.item_type_name
+    FROM items i
+    JOIN categories c ON i.category_id = c.category_id
+    JOIN item_types t ON i.item_type_id = t.item_type_id
+    WHERE i.item_id = ?`;
+
+  db.query(query, [id], (err, results) => {
+    if (err) {
+      console.error("Error fetching product by ID:", err);
+      return res.status(500).json({ message: "Failed to fetch product" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json(results[0]);
+  });
+});
 
   router.get("/top-picks", (req, res) => {
     const query = `

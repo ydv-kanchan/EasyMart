@@ -41,7 +41,7 @@ const handleLogin = (req, res, userType, idField) => {
       const token = jwt.sign(
         { id: user[idField], role: userType },
         JWT_SECRET,
-        { expiresIn: "30m" }
+        { expiresIn: "50m" }
       );
 
       const cookieName =
@@ -53,6 +53,7 @@ const handleLogin = (req, res, userType, idField) => {
 
       res.cookie(cookieName, token, {
         httpOnly: true,
+<<<<<<< HEAD
         secure: false, 
         sameSite: "Lax",
         maxAge: 30 * 60 * 1000, 
@@ -62,6 +63,15 @@ const handleLogin = (req, res, userType, idField) => {
       res.status(200).json({
         message: "Login successful",
         token,
+=======
+        secure: false,
+        sameSite: "Lax",
+        maxAge: 50 * 60 * 1000,
+      });
+      res.status(200).json({
+        message: "Login successful",
+        token, 
+>>>>>>> e5a4e3183f351d3d71c7c27dee4d4d4c7cd4e199
         user: {
           id: user[idField],
           name: user.full_name || user.fullName,

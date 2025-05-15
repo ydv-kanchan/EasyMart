@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link } from "react-router-dom";
 
 const categories = [
   {
@@ -46,7 +46,6 @@ const CategoryNavbar = () => {
                 </div>
               </Link>
 
-              {/* Vertical Divider (except after last item) */}
               {index !== categories.length - 1 && (
                 <div className="w-px h-20 bg-gray-300 self-center"></div>
               )}

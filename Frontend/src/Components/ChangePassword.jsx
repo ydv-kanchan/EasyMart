@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = ({ role }) => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-      e.preventDefault();
-      console.log("Form submitted");
+    e.preventDefault();
+    console.log("Form submitted");
 
     if (newPassword !== confirmPassword) {
       setMessage("New password and confirm password do not match.");
@@ -24,11 +26,16 @@ const ChangePassword = ({ role }) => {
           newPassword,
         },
         {
-          withCredentials: true, // ✅ Send cookies to backend
+          withCredentials: true,
         }
       );
 
-      setMessage(res.data.message || "Password changed successfully.");
+      alert(res.data.message || "Password changed successfully.");
+      if (role === "vendor") {
+        navigate("/vendorHome"); 
+      } else {
+        navigate("/home"); 
+      }
     } catch (error) {
       console.error(
         "Change password error:",

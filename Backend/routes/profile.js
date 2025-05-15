@@ -11,7 +11,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const EMAIL = process.env.EMAIL;
 const EMAIL_PASSWORD = process.env.EMAIL_PASSWORD;
 
-// Nodemailer setup
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -20,7 +19,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ========== UPDATE Customer Profile ==========
 router.put(
   "/customer/update",
   authenticateToken("customer"),
@@ -186,7 +184,6 @@ router.get("/verify-email", (req, res) => {
   }
 });
 
-// ========== FETCH Customer Profile ==========
 router.get("/customer", authenticateToken("customer"), (req, res) => {
   const { role, id } = req.user;
   if (role !== "customer") {
@@ -208,7 +205,6 @@ router.get("/customer", authenticateToken("customer"), (req, res) => {
   });
 });
 
-// ========== FETCH Vendor Profile ==========
 router.get("/vendor", authenticateToken("vendor"), (req, res) => {
   const { role, id } = req.user;
 
@@ -296,8 +292,6 @@ router.put("/vendor/update", authenticateToken("vendor"), (req, res) => {
   });
 });
 
-
-// 🔁 Reusable deletion logic
 router.delete("/delete", (req, res) => {
   const vendorToken = req.cookies.vendor_token;
   const customerToken = req.cookies.customer_token;
@@ -305,7 +299,6 @@ router.delete("/delete", (req, res) => {
   let token = null;
   let role = null;
 
-  // ✅ Determine which token exists
   if (vendorToken) {
     token = vendorToken;
     role = "vendor";
@@ -320,7 +313,6 @@ router.delete("/delete", (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.id;
 
-    // ✅ Choose table and column based on role
     const table = role === "vendor" ? "vendors" : "customers";
     const column = role === "vendor" ? "vendor_id" : "id";
 
@@ -335,7 +327,6 @@ router.delete("/delete", (req, res) => {
           });
         }
 
-        // ✅ Clear correct token after deletion
         const cookieName =
           role === "vendor" ? "vendor_token" : "customer_token";
         res.clearCookie(cookieName);

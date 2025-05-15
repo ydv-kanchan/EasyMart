@@ -29,7 +29,7 @@ const CustomerProfile = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Track if email is changed
+
     if (name === "email" && value !== user.email) {
       setEmailChanged(true);
     } else if (name === "email") {
@@ -118,7 +118,7 @@ const CustomerProfile = () => {
       });
 
       alert("Account deleted successfully.");
-      window.location.href = "/"; // or redirect to login/home
+      window.location.href = "/";
     } catch (err) {
       console.error("Failed to delete account:", err);
       alert("Error deleting account. Please try again later.");
@@ -137,15 +137,17 @@ const CustomerProfile = () => {
       </h2>
 
       {showChangePassword ? (
-        <div className="px-8 pb-8">
-          <ChangePassword
-            role="customer"
-            onClose={() => setShowChangePassword(false)}
-          />
+        <div className="px-8 pb-8 h-[80%] flex items-center justify-center">
+          <div className="w-full sm:w-[80%] lg:w-[60%] xl:w-[50%]">
+            <ChangePassword
+              role="customer"
+              onClose={() => setShowChangePassword(false)}
+            />
+          </div>
         </div>
       ) : (
         <>
-          <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
+        <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 text-gray-800 text-[16px] px-8 pb-4">
             {inputBox("First Name", "first_name", user.first_name)}
             {inputBox("Middle Name", "middle_name", user.middle_name || "")}
             {inputBox("Last Name", "last_name", user.last_name || "")}

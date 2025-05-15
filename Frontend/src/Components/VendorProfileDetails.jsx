@@ -58,7 +58,7 @@ const VendorProfileDetails = () => {
       alert(res.data.message);
 
       if (res.data.requiresVerification) {
-        // Don't update originalEmail until verification is done
+        
         return;
       } else {
         setOriginalEmail(formData.email);
@@ -86,7 +86,7 @@ const VendorProfileDetails = () => {
       });
 
       alert("Account deleted successfully.");
-      window.location.href = "/"; // or redirect to login/home
+      window.location.href = "/"; 
     } catch (err) {
       console.error("Failed to delete account:", err);
       alert("Error deleting account. Please try again later.");
@@ -128,36 +128,36 @@ const VendorProfileDetails = () => {
       transition={{ duration: 0.4 }}
       className="w-full h-full bg-white shadow-md rounded-2xl flex flex-col justify-between"
     >
-      <h2 className="text-2xl font-bold text-gray-800 px-8 pt-8 mb-4">
-        Vendor Profile
-      </h2>
+      {showChangePassword ? (
+     
+        <ChangePassword
+          role="vendor"
+          onClose={() => setShowChangePassword(false)}
+        />
+      ) : (
+        <>
+          <h2 className="text-2xl font-bold text-gray-800 px-8 pt-8 mb-4">
+            Vendor Profile
+          </h2>
 
-      <div className="flex-grow text-gray-800 text-[16px] px-8 pb-4">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-6 mb-6">
-          {inputBox("First Name", "first_name", formData.first_name)}
-          {inputBox("Middle Name", "middle_name", formData.middle_name)}
-          {inputBox("Last Name", "last_name", formData.last_name)}
-        </div>
+          <div className="flex-grow text-gray-800 text-[16px] px-8 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-6 mb-6">
+              {inputBox("First Name", "first_name", formData.first_name)}
+              {inputBox("Middle Name", "middle_name", formData.middle_name)}
+              {inputBox("Last Name", "last_name", formData.last_name)}
+            </div>
 
-        <div className="mb-6">{inputBox("Email", "email", formData.email)}</div>
+            <div className="mb-6">
+              {inputBox("Email", "email", formData.email)}
+            </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
-          {inputBox("Username", "username", formData.username)}
-          {inputBox("Phone", "phone", formData.phone)}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">
-        {showChangePassword ? (
-          <div className="px-8 pb-8">
-            <ChangePassword
-              role="vendor"
-              onClose={() => setShowChangePassword(false)}
-            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+              {inputBox("Username", "username", formData.username)}
+              {inputBox("Phone", "phone", formData.phone)}
+            </div>
           </div>
-        ) : (
-          <>
-            {/* existing profile fields */}
+
+          <div className="flex flex-wrap gap-4 justify-between px-8 pb-8 mt-4 w-full">
             <div className="flex justify-between px-8 pb-8 mt-4 w-full">
               {editMode ? (
                 <div className="flex justify-end w-full">
@@ -200,9 +200,9 @@ const VendorProfileDetails = () => {
                 </>
               )}
             </div>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
     </motion.div>
   );
 };
