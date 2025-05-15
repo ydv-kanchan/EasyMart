@@ -50,7 +50,6 @@ const CustomerOrderList = () => {
       const data = await res.json();
       if (res.ok) {
         alert(data.message);
-        // Refresh orders list to reflect change
         fetchOrders();
       } else {
         alert(data.message || "Failed to cancel order");
@@ -79,12 +78,12 @@ const CustomerOrderList = () => {
             <div
               key={order.order_id}
               className="flex items-center bg-white p-4 rounded shadow max-w-full"
-              style={{ maxWidth: "900px" }} // or you can keep max-w-5xl and adjust
+              style={{ maxWidth: "900px" }}
             >
               <img
                 src={`http://localhost:3000${order.item_image}`}
                 alt={order.item_name}
-                className="w-24 h-24 object-cover border rounded"
+                className="w-24 h-24 object-cover border"
               />
 
               <div className="ml-4 flex-1">
@@ -120,7 +119,7 @@ const CustomerOrderList = () => {
                 ) && (
                   <button
                     onClick={() => handleCancel(order.order_id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                    className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
                   >
                     Cancel
                   </button>
