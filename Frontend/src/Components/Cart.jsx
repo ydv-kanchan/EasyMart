@@ -126,8 +126,10 @@ const Cart = () => {
         setCartItems([]);
         setTotalAmount(0);
         setShowModal(false);
+        navigate("/home");
       } else {
         alert(data.message || data.error || "Order failed");
+        
       }
     } catch (err) {
       console.error("Error placing order:", err);

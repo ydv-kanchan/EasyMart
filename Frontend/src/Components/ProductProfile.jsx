@@ -184,7 +184,7 @@ const ProductProfile = () => {
       if (res.ok) {
         alert("Order placed successfully!");
         setShowModal(false);
-        // Optionally navigate or reset something here
+        navigate("/home");
       } else {
         alert(data.message || data.error || "Order failed");
       }

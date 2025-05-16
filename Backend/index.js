@@ -17,6 +17,7 @@ const wishlistRouter = require("./routes/wishlistRoutes");
 const cartRoutes = require("./routes/cart");
 const shopDetailsRouter = require("./routes/shopDetails");
 const ordersRouter = require("./routes/orders");
+const vendorOrdersRouter = require("./routes/vendorOrders");
 
 const app = express();
 require("dotenv").config();
@@ -46,5 +47,6 @@ app.use("/api/wishlistRoutes", wishlistRouter);
 app.use("/api/cart", cartRoutes);
 app.use("/api/shopDetails", shopDetailsRouter);
 app.use("/api/orders", ordersRouter);
+app.use("/api/vendorOrders",vendorOrdersRouter);
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
