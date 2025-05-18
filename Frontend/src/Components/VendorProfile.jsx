@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiHome, FiUser, FiBox, FiClipboard } from "react-icons/fi";
-import VendorProfileDetails from "./VendorProfileDetails"; 
+import VendorProfileDetails from "./VendorProfileDetails";
 import Dashboard from "./Dashboard";
 import VendorProductList from "./VendorProductList";
 import IncomingVendorOrders from "./IncomingVendorOrders";
@@ -45,6 +45,25 @@ const VendorProfile = () => {
       case "orders":
         return (
           <div className="p-6 w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M9 16h6"
+                />
+              </svg>
+              <p className="text-xl font-bold text-gray-800">
+                Order Management
+              </p>
+            </div>
             <IncomingVendorOrders />
           </div>
         );
