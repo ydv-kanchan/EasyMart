@@ -4,8 +4,7 @@ const db = require("../config/db");
 const validateToken = require("../middleware/validateToken");
 
 router.get("/details", validateToken, (req, res) => {
-    const vendorId = req.vendor.vendor_id;
-  console.log(vendorId , "in shop details") ;
+  const vendorId = req.vendor.vendor_id;
 
   const query = `
     SELECT storeName AS name, storeDescription AS description, store_logo AS logo
