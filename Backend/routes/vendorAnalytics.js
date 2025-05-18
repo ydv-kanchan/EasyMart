@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
-const db = require("../config/db"); // Your mysql2 db connection instance
+const db = require("../config/db");
 const authenticateToken = require("../middleware/authenticateToken");
 
-// GET /api/vendor/analytics
 router.get("/analytics", authenticateToken("vendor"), async (req, res) => {
-  const vendorId = req.user.id; // get vendor id from decoded JWT
+  const vendorId = req.user.id;
 
   try {
-    // Query 1: Orders count by category for this vendor
+  
     const ordersByCategoryQuery = `
   SELECT 
     c.category_name,

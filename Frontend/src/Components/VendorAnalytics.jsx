@@ -21,7 +21,7 @@ const VendorAnalytics = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const token = localStorage.getItem("vendor_token"); // or get from cookies/headers
+        const token = localStorage.getItem("vendor_token");
         const res = await fetch(
           "http://localhost:3000/api/analytics/analytics",
           {
@@ -43,7 +43,6 @@ const VendorAnalytics = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-      {/* Orders by Category Chart */}
       <div className="bg-gray-50 rounded-xl p-4">
         <h3 className="text-lg font-semibold mb-4">Orders by Category</h3>
         <PieChart width={300} height={250}>
@@ -68,7 +67,6 @@ const VendorAnalytics = () => {
         </PieChart>
       </div>
 
-      {/* Sales Trend Chart */}
       <div className="bg-gray-50 rounded-xl p-4">
         <h3 className="text-lg font-semibold mb-4">Sales Trend</h3>
         <LineChart width={400} height={250} data={salesTrendData}>
