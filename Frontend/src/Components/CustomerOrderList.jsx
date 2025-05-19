@@ -114,9 +114,7 @@ const CustomerOrderList = () => {
                   })}
                 </p>
 
-                {["pending", "confirmed", "shipped"].includes(
-                  order.order_status
-                ) && (
+                {["pending", "confirmed"].includes(order.order_status) && (
                   <button
                     onClick={() => handleCancel(order.order_id)}
                     className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
