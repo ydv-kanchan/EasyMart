@@ -156,20 +156,12 @@ const IncomingVendorOrders = () => {
             </>
           )}
           {order.order_status === "shipped" && (
-            <>
-              <button
-                onClick={() => handleAction(order.order_id, "deliver")}
-                className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition"
-              >
-                Deliver
-              </button>
-              <button
-                onClick={() => handleAction(order.order_id, "cancel")}
-                className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
-              >
-                Cancel
-              </button>
-            </>
+            <button
+              onClick={() => handleAction(order.order_id, "deliver")}
+              className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition"
+            >
+              Deliver
+            </button>
           )}
         </div>
       </div>
