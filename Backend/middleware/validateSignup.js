@@ -6,9 +6,6 @@ const commonValidations = [
   body("password")
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long"),
-  body("confirmPassword")
-    .custom((value, { req }) => value === req.body.password)
-    .withMessage("Passwords must match"),
 ];
 
 const customerValidations = [
@@ -18,18 +15,18 @@ const customerValidations = [
   body("state").notEmpty().withMessage("State is required"),
   body("country").notEmpty().withMessage("Country is required"),
   body("pincode").isPostalCode("IN").withMessage("Invalid pincode"),
+  body("confirmPassword")
+    .custom((value, { req }) => value === req.body.password)
+    .withMessage("Passwords must match")
 ];
 
 const vendorValidations = [
+  body("first_name").notEmpty().withMessage("First name is required"),
+  body("last_name").notEmpty().withMessage("Last name is required"),
   body("businessName").notEmpty().withMessage("Business name is required"),
-  body("gstNumber")
-    .optional()
-    .isLength({ min: 15, max: 15 })
-    .withMessage("Invalid GST number"),
-  body("businessAddress")
-    .notEmpty()
-    .withMessage("Business address is required"),
-  body("businessType").notEmpty().withMessage("Business type is required"),
+  body("storeName").notEmpty().withMessage("Store name is required"),
+  body("storeDescription").notEmpty().withMessage("Store description is required"),
+
 ];
 
 const validateSignup = (role) => {

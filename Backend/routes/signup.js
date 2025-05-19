@@ -127,7 +127,7 @@ router.post("/customers", validateSignup("customer"), async (req, res) => {
   }
 });
 
-router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
+router.post("/vendors", upload.single("storeLogo"), validateSignup("vendor"), async (req, res) => {
   try {
     const {
       first_name,
@@ -161,7 +161,7 @@ router.post("/vendors", upload.single("storeLogo"), async (req, res) => {
         console.error("Database Error on Check:", err);
         return res
           .status(500)
-          .json({ message: "Database error", error: err.message });
+          .json({ message: "Database error", error: err.message  });
       }
 
       if (result.length > 0) {
