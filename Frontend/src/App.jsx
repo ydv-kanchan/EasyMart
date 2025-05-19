@@ -7,13 +7,11 @@ import CustomerSignup from "./Components/CustomerSignup";
 import VendorSignup from "./Components/VendorSignup";
 import Home from "./Components/Home";
 import Profile from "./Components/Profile";
-import VendorHome from "./Components/VendorHome";
 import AddProduct from "./Components/AddProduct";
 import VendorProductList from "./Components/VendorProductList";
 import ResetPassword from "./Components/ResetPassword";
 import CustomerLayout from "./Components/CustomerLayout";
 import VendorLayout from "./Components/VendorLayout";
-import VendorProfile from "./Components/VendorProfile";
 import ProductList from "./Components/ProductList";
 import ProductProfile from "./Components/ProductProfile";
 import Wishlist from "./Components/Wishlist";
@@ -21,6 +19,8 @@ import Cart from "./Components/Cart";
 import SearchResults from "./Components/SearchResults";
 import CustomerOrderList from "./Components/CustomerOrderList";
 import IncomingVendorOrders from "./Components/IncomingVendorOrders";
+import Dashboard from "./Components/Dashboard";
+import VendorProfileDetails from "./Components/VendorProfileDetails";
 function App() {
   const location = useLocation();
 
@@ -56,12 +56,12 @@ function App() {
         </Route>
 
         <Route element={<VendorLayout />}>
-          <Route path="/vendorHome" element={<VendorHome />} />
           <Route path="/add-product" element={<AddProduct />} />
           <Route path="/vendor-product-list" element={<VendorProductList />} />
-          <Route path="/vendor/profile" element={<VendorProfile />} />
           <Route path="/products/:categoryName" element={<ProductList />} />
           <Route path="/incoming-orders" element={<IncomingVendorOrders />} />
+          <Route path="/details" element={< VendorProfileDetails/>} />
+          <Route path="/dashboard" element={< Dashboard/>} />
         </Route>
       </Routes>
     </div>
