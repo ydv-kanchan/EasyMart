@@ -1,5 +1,6 @@
 import React from "react";
 import ShopDetails from "./ShopDetails";
+import VendorAnalytics from "./VendorAnalytics";
 
 const Dashboard = () => {
   return (
@@ -9,9 +10,7 @@ const Dashboard = () => {
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           📈 Analytics & Trends
         </h2>
-        <p className="text-gray-600">
-          Charts like orders by category and sales trend visualization.
-        </p>
+        <VendorAnalytics />
       </section>
 
       <section className="bg-white p-6 rounded-2xl shadow">
@@ -20,15 +19,6 @@ const Dashboard = () => {
         </h2>
         <p className="text-gray-600">
           List of your latest orders will appear here.
-        </p>
-      </section>
-
-      <section className="bg-white p-6 rounded-2xl shadow">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">
-          💬 Customer Feedback
-        </h2>
-        <p className="text-gray-600">
-          Reviews and ratings from customers on your products.
         </p>
       </section>
     </div>

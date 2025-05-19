@@ -20,8 +20,7 @@ import Wishlist from "./Components/Wishlist";
 import Cart from "./Components/Cart";
 import SearchResults from "./Components/SearchResults";
 import CustomerOrderList from "./Components/CustomerOrderList";
-import IncomingVendorOrders
- from "./Components/IncomingVendorOrders";
+import IncomingVendorOrders from "./Components/IncomingVendorOrders";
 function App() {
   const location = useLocation();
 

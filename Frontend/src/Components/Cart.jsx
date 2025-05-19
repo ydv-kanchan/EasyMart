@@ -76,10 +76,13 @@ const Cart = () => {
 
   const removeItem = async (item_id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/cart/remove/${item_id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await fetch(
+        `http://localhost:3000/api/cart/remove/${item_id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const data = await res.json();
       if (res.ok) {
         fetchCart();
@@ -129,7 +132,6 @@ const Cart = () => {
         navigate("/home");
       } else {
         alert(data.message || data.error || "Order failed");
-        
       }
     } catch (err) {
       console.error("Error placing order:", err);
@@ -144,13 +146,15 @@ const Cart = () => {
 
   if (cartItems.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center text-center bg-gray-50 px-4">
-        <h2 className="text-2xl font-semibold text-gray-700 mb-4">Your cart is empty</h2>
+      <div className="min-h-[calc(10vh-rem)] flex flex-col bg-gray-50 px-4">
+        <h2 className="text-2xl font-semibold text-gray-700 mb-4">
+          Your cart is empty
+        </h2>
         <button
-          onClick={() => navigate("/home")}
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+          onClick={() => navigate("/wishlist")}
+          className="w-fit bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
         >
-          Continue Shopping
+          Check Wishlist
         </button>
       </div>
     );
@@ -266,7 +270,9 @@ const Cart = () => {
 
             {/* Order summary */}
             <div className="mb-6 bg-gray-50 p-4 rounded border max-h-40 overflow-y-auto">
-              <h3 className="text-lg font-medium mb-2 text-gray-700">Order Summary</h3>
+              <h3 className="text-lg font-medium mb-2 text-gray-700">
+                Order Summary
+              </h3>
               <ul className="text-gray-700 text-sm mb-2">
                 {cartItems.map((item) => (
                   <li key={item.item_id} className="flex justify-between mb-1">
@@ -291,7 +297,9 @@ const Cart = () => {
               }}
             >
               <label className="block mb-4">
-                <span className="block text-gray-700 font-medium mb-1">Name</span>
+                <span className="block text-gray-700 font-medium mb-1">
+                  Name
+                </span>
                 <input
                   type="text"
                   value={customerName}
@@ -303,7 +311,9 @@ const Cart = () => {
               </label>
 
               <fieldset className="mb-4">
-                <legend className="text-gray-700 font-medium mb-2">Address</legend>
+                <legend className="text-gray-700 font-medium mb-2">
+                  Address
+                </legend>
 
                 <label className="flex items-center mb-2 cursor-pointer">
                   <input
@@ -358,7 +368,8 @@ const Cart = () => {
                 <button
                   type="submit"
                   disabled={
-                    !customerName || (useDefaultAddress ? !defaultAddress : !newAddress)
+                    !customerName ||
+                    (useDefaultAddress ? !defaultAddress : !newAddress)
                   }
                   className={`px-5 py-2 rounded bg-blue-500 text-white hover:bg-blue-700 transition disabled:bg-blue-300 disabled:cursor-not-allowed`}
                 >

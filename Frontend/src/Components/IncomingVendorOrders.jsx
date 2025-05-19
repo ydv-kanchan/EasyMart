@@ -8,8 +8,19 @@ const statusColors = {
   canceled: "text-red-600",
 };
 
+const tabList = ["pending", "confirmed", "shipped", "delivered", "canceled"];
+
+const tabTitles = {
+  pending: "Pending Orders",
+  confirmed: "Confirmed Orders",
+  shipped: "Shipped Orders",
+  delivered: "Delivered Orders",
+  canceled: "Canceled Orders",
+};
+
 const IncomingVendorOrders = () => {
   const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState("pending");
   const token = localStorage.getItem("token");
 
   const fetchVendorOrders = async () => {
@@ -35,10 +46,16 @@ const IncomingVendorOrders = () => {
   }, [token]);
 
   const handleAction = async (orderId, action) => {
-    const endpoint =
-      action === "confirm"
-        ? `http://localhost:3000/api/vendorOrders/orders/confirm/${orderId}`
-        : `http://localhost:3000/api/vendorOrders/orders/ship/${orderId}`;
+    let endpoint = "";
+    if (action === "confirm") {
+      endpoint = `http://localhost:3000/api/vendorOrders/orders/confirm/${orderId}`;
+    } else if (action === "ship") {
+      endpoint = `http://localhost:3000/api/vendorOrders/orders/ship/${orderId}`;
+    } else if (action === "deliver") {
+      endpoint = `http://localhost:3000/api/vendorOrders/orders/deliver/${orderId}`;
+    } else if (action === "cancel") {
+      endpoint = `http://localhost:3000/api/vendorOrders/orders/cancel/${orderId}`;
+    }
 
     try {
       const res = await fetch(endpoint, {
@@ -59,110 +76,135 @@ const IncomingVendorOrders = () => {
     }
   };
 
-  const pendingAndConfirmed = orders.filter(
-    (o) => o.order_status === "pending" || o.order_status === "confirmed"
-  );
-  const shippedAndOthers = orders.filter(
-    (o) =>
-      o.order_status === "shipped" ||
-      o.order_status === "delivered" ||
-      o.order_status === "canceled"
-  );
+  const filteredOrders = orders.filter((o) => o.order_status === activeTab);
 
   const renderOrderCard = (order) => (
     <div
       key={order.order_id}
-      className="flex items-center bg-white p-4 rounded shadow max-w-full"
+      className="flex items-center justify-between bg-white p-4 rounded shadow max-w-full"
       style={{ maxWidth: "900px" }}
     >
-      <img
-        src={`http://localhost:3000${order.item_image}`}
-        alt={order.item_name}
-        className="w-24 h-24 object-cover border"
-      />
-
-      <div className="ml-4 flex-1">
-        <h3 className="text-lg font-semibold">{order.item_name}</h3>
-        <p className="text-gray-600">Quantity: {order.quantity}</p>
-        <p className="text-gray-600">
-          Price: ₹{Number(order.price_per_item).toFixed(2)}
-        </p>
-        <p className="text-gray-600 mt-2 text-sm">
-          <span className="font-semibold">Customer:</span>{" "}
-          {order.customer_name}
-        </p>
-        <p className="text-gray-600 text-sm">
-          <span className="font-semibold">Address:</span> {order.address}
-        </p>
+      <div className="flex items-center">
+        <img
+          src={`http://localhost:3000${order.item_image}`}
+          alt={order.item_name}
+          className="w-24 h-24 object-cover border"
+        />
+        <div className="ml-4">
+          <h3 className="text-lg font-semibold">{order.item_name}</h3>
+          <p className="text-gray-600">Quantity: {order.quantity}</p>
+          <p className="text-gray-600">
+            Price: ₹{Number(order.price_per_item).toFixed(2)}
+          </p>
+          <p className="text-gray-600 mt-2 text-sm">
+            <span className="font-semibold">Customer:</span>{" "}
+            {order.customer_name}
+          </p>
+          <p className="text-gray-600 text-sm">
+            <span className="font-semibold">Address:</span> {order.address}
+          </p>
+        </div>
       </div>
-
-      <div className="text-right min-w-[160px] pr-4">
-        <p className={`${statusColors[order.order_status]} font-medium capitalize mb-2`}>
-          {order.order_status}
-        </p>
-        <p className="text-sm text-gray-500 mb-3">
-          {new Date(order.order_date).toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-          })}
-        </p>
-
-        {order.order_status === "pending" && (
-          <button
-            onClick={() => handleAction(order.order_id, "confirm")}
-            className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 transition mb-2"
+      <div className="text-right flex flex-col justify-between min-w-[200px] h-full">
+        <div>
+          <p
+            className={`${
+              statusColors[order.order_status]
+            } font-medium capitalize mb-1`}
           >
-            Confirm
-          </button>
-        )}
-
-        {order.order_status === "confirmed" && (
-          <button
-            onClick={() => handleAction(order.order_id, "ship")}
-            className="px-3 py-1 bg-purple-600 text-white hover:bg-purple-700 transition"
-          >
-            Ship
-          </button>
-        )}
+            {order.order_status}
+          </p>
+          <p className="text-sm text-gray-500 mb-2">
+            {new Date(order.order_date).toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+        </div>
+        <div className="flex gap-2 justify-end flex-wrap mt-2">
+          {order.order_status === "pending" && (
+            <>
+              <button
+                onClick={() => handleAction(order.order_id, "confirm")}
+                className="px-3 py-1 bg-blue-600 text-white hover:bg-blue-700 transition"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => handleAction(order.order_id, "cancel")}
+                className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+          {order.order_status === "confirmed" && (
+            <>
+              <button
+                onClick={() => handleAction(order.order_id, "ship")}
+                className="px-3 py-1 bg-purple-600 text-white hover:bg-purple-700 transition"
+              >
+                Ship
+              </button>
+              <button
+                onClick={() => handleAction(order.order_id, "cancel")}
+                className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+          {order.order_status === "shipped" && (
+            <>
+              <button
+                onClick={() => handleAction(order.order_id, "deliver")}
+                className="px-3 py-1 bg-green-600 text-white hover:bg-green-700 transition"
+              >
+                Deliver
+              </button>
+              <button
+                onClick={() => handleAction(order.order_id, "cancel")}
+                className="px-3 py-1 bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );
 
-  if (orders.length === 0) {
-    return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <p className="text-gray-500 text-lg">No incoming orders right now.</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-[calc(100vh-20rem)] bg-gray-100 px-6 py-6">
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-100 px-6 py-6">
       <div className="max-w-5xl mx-auto">
-        {/* Section: Incoming Orders */}
-        <div className="mb-10">
-          <h2 className="text-3xl font-bold mb-6">Incoming Orders</h2>
-          {pendingAndConfirmed.length === 0 ? (
-            <p className="text-gray-500">No pending or confirmed orders.</p>
-          ) : (
-            <div className="space-y-4">
-              {pendingAndConfirmed.map((order) => renderOrderCard(order))}
-            </div>
-          )}
+        {/* Tabs */}
+        <div className="flex mb-8 border-b">
+          {tabList.map((tab) => (
+            <button
+              key={tab}
+              className={`capitalize px-6 py-2 font-medium transition border-b-2 ${
+                activeTab === tab
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-gray-500 hover:text-blue-500"
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
 
-        {/* Section: Processed Orders */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6 text-gray-700">Processed Orders</h2>
-          {shippedAndOthers.length === 0 ? (
-            <p className="text-gray-400">No shipped or completed orders yet.</p>
-          ) : (
-            <div className="space-y-4">
-              {shippedAndOthers.map((order) => renderOrderCard(order))}
-            </div>
-          )}
-        </div>
+        {/* Section content */}
+        <h2 className="text-2xl font-bold mb-4">{tabTitles[activeTab]}</h2>
+        {filteredOrders.length === 0 ? (
+          <p className="text-gray-400">No {activeTab} orders.</p>
+        ) : (
+          <div className="space-y-4">
+            {filteredOrders.map((order) => renderOrderCard(order))}
+          </div>
+        )}
       </div>
     </div>
   );

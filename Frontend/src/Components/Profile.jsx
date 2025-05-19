@@ -63,9 +63,9 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-2cm)] bg-gray-100 p-7 gap-7">
-      {/* Sidebar */}
-      <div className="w-full md:w-64 h-[calc(100vh-2cm)] bg-gradient-to-b from-blue-500 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-col gap-4">
+    <div className="flex h-[calc(100vh-2cm)] bg-gray-100 p-7 gap-7 overflow-hidden">
+      {/* Sidebar - Fixed */}
+      <div className="w-64 bg-gradient-to-b from-blue-500 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-col gap-4 sticky top-7 h-[calc(100vh-2cm)]">
         <h2 className="text-2xl font-bold mb-2">My Account</h2>
         <SidebarItem
           icon={FiUser}
@@ -99,8 +99,8 @@ const Profile = () => {
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto h-auto min-h-[calc(100vh-2cm)] p-0 md:p-0">
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto h-[calc(100vh-2cm)] bg-white rounded-2xl shadow p-6">
         {renderContent()}
       </div>
     </div>

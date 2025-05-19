@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiHome, FiUser, FiBox, FiClipboard } from "react-icons/fi";
-import VendorProfileDetails from "./VendorProfileDetails"; 
+import VendorProfileDetails from "./VendorProfileDetails";
 import Dashboard from "./Dashboard";
 import VendorProductList from "./VendorProductList";
 import IncomingVendorOrders from "./IncomingVendorOrders";
@@ -26,7 +26,7 @@ const VendorProfile = () => {
     switch (selectedTab) {
       case "dashboard":
         return (
-          <div className=" w-full">
+          <div className="w-full">
             <Dashboard />
           </div>
         );
@@ -45,6 +45,25 @@ const VendorProfile = () => {
       case "orders":
         return (
           <div className="p-6 w-full">
+            <div className="flex items-center gap-2 mb-4">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 10h18M9 16h6"
+                />
+              </svg>
+              <p className="text-xl font-bold text-gray-800">
+                Order Management
+              </p>
+            </div>
             <IncomingVendorOrders />
           </div>
         );
@@ -54,9 +73,9 @@ const VendorProfile = () => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-2cm)] bg-gray-100 p-7 gap-7">
-      {/* Sidebar */}
-      <div className="w-full md:w-64 h-[calc(100vh-2cm)] bg-gradient-to-b from-blue-500 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-col gap-4">
+    <div className="flex h-[calc(100vh-2cm)] bg-gray-100 p-7 gap-7 overflow-hidden">
+      {/* Sidebar - Fixed */}
+      <div className="w-64 bg-gradient-to-b from-blue-500 to-blue-700 text-white p-4 rounded-2xl shadow-lg flex flex-col gap-4 sticky top-7 h-[calc(100vh-2cm)]">
         <h2 className="text-2xl font-bold mb-2">Vendor Panel</h2>
         <SidebarItem
           icon={FiHome}
@@ -84,8 +103,8 @@ const VendorProfile = () => {
         />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 overflow-auto h-auto min-h-[calc(100vh-2cm)] bg-white rounded-2xl shadow p-6">
+      {/* Main Content - Scrollable */}
+      <div className="flex-1 overflow-y-auto h-[calc(100vh-2cm)] bg-white rounded-2xl shadow p-6">
         {renderContent()}
       </div>
     </div>
