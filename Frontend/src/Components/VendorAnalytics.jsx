@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { ResponsiveContainer } from "recharts";
 import {
   PieChart,
   Pie,
@@ -51,6 +52,16 @@ const VendorAnalytics = () => {
     0
   );
 
+  // ===== YAxis Scaling Logic =====
+  const maxSales = Math.max(
+    ...salesTrendData.map((item) => item.total_sales || 0)
+  );
+  const yAxisMax = Math.ceil(maxSales / 10000) * 10000 + 10000;
+  const yAxisTicks = [];
+  for (let i = 0; i <= yAxisMax; i += 25000) {
+    yAxisTicks.push(i);
+  }
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
@@ -80,14 +91,27 @@ const VendorAnalytics = () => {
 
         <div className="bg-gray-50 rounded-xl p-4">
           <h3 className="text-lg font-semibold mb-4">Sales Trend</h3>
-          <LineChart width={400} height={250} data={salesTrendData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Line type="monotone" dataKey="total_sales" stroke="#8884d8" />
-          </LineChart>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={salesTrendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis
+                dataKey="date"
+                tickFormatter={(tick) => new Date(tick).toLocaleDateString()}
+              />
+              <YAxis domain={[0, yAxisMax]} ticks={yAxisTicks} />
+              <Tooltip
+                labelFormatter={(label) => new Date(label).toLocaleString()}
+              />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="total_sales"
+                stroke="#8884d8"
+                dot={{ r: 3 }}
+                strokeWidth={2}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
 
