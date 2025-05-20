@@ -138,8 +138,6 @@ router.get("/top-picks", (req, res) => {
 });
 
 
-
-// Route: Search products with filtering & sorting (same as category)
 router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   const { searchTerm } = req.params;
   const { priceRange, sortOrder } = req.query;

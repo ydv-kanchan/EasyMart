@@ -57,7 +57,7 @@ const SearchResults = () => {
     <div className="min-h-screen">
       <div className="px-6 py-4 border-b">
         <h2 className="text-2xl font-bold text-gray-800">
-          Search Results for "{decodeURIComponent(searchTerm)}"
+          Results for "{decodeURIComponent(searchTerm)}"
         </h2>
       </div>
 
