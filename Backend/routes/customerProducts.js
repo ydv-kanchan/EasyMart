@@ -4,7 +4,7 @@ const db = require("../config/db");
 const validateCustomerToken = require("../middleware/validateCustomerToken");
 const authenticateToken = require("../middleware/authenticateToken");
 
-// Helper function to build price range conditions
+
 function buildPriceConditions(priceRange) {
   const ranges = priceRange.split(",");
   let priceConditions = [];
@@ -137,7 +137,6 @@ router.get("/top-picks", (req, res) => {
   });
 });
 
-
 router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
   const { searchTerm } = req.params;
   const { priceRange, sortOrder } = req.query;
@@ -184,9 +183,9 @@ router.get("/search/:searchTerm", validateCustomerToken, (req, res) => {
 
 router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
   const { categoryName } = req.params;
-  const { priceRange, sortOrder } = req.query; // Get filters from query parameters
+  const { priceRange, sortOrder } = req.query;
 
-  // Start building the query
+
   let query = `
     SELECT 
       i.item_id, 
@@ -205,9 +204,8 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
 
   let queryParams = [categoryName];
 
-  // Apply price range filter if provided
   if (priceRange) {
-    const ranges = priceRange.split(","); // Expect priceRange to be a comma-separated string
+    const ranges = priceRange.split(",");
     let priceConditions = [];
 
     if (ranges.includes("₹0 - ₹500")) {
@@ -221,20 +219,18 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
     }
 
     if (priceConditions.length > 0) {
-      query += ` AND (${priceConditions.join(" OR ")})`; // Use OR for multiple price ranges
+      query += ` AND (${priceConditions.join(" OR ")})`;
     }
   }
 
-  // Apply sorting if provided
   if (sortOrder === "lowToHigh") {
     query += " ORDER BY i.item_price ASC";
   } else if (sortOrder === "highToLow") {
     query += " ORDER BY i.item_price DESC";
   } else {
-    query += " ORDER BY i.item_id DESC"; // Default sorting (e.g., by ID)
+    query += " ORDER BY i.item_id DESC";
   }
 
-  // Run the query
   db.query(query, queryParams, (err, rows) => {
     if (err) {
       console.error("Error fetching products by category:", err);
@@ -243,8 +239,5 @@ router.get("/category/:categoryName", validateCustomerToken, (req, res) => {
     res.status(200).json(rows);
   });
 });
-
-
-
 
 module.exports = router;
